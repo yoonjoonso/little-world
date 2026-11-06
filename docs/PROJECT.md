@@ -1,6 +1,6 @@
 # Our Little World
 
-Status: first playable prototype in development. No deployment approved.
+Status: first playable prototype ready for an online preview. Yoon approved free online hosting on November 6, 2026; GitHub Pages setup is being prepared. Deployment has not yet completed.
 Owners: Yoon owns engine/code decisions; Yoon and Lila shape the world and content.
 
 ## Product
@@ -16,7 +16,7 @@ The city and buildings are not yet finalized. The garden and cottage are disposa
 - Vite: local development and static production build.
 - Supabase: planned Auth, Postgres, private Realtime presence/events, and Storage for uploaded assets. Initial client and unapplied schema are included. The playable prototype does not contact Supabase without configuration.
 - GitHub: source, documentation, asset history, feature branches, pull requests, and CI.
-- Hosting: undecided. Vercel is an option, not a requirement. Deployment needs Yoon's approval.
+- Hosting: GitHub Pages for the public static prototype, using the existing public GitHub repository. Supabase remains the planned separate backend. Future deployments need Yoon's approval; approved merges to `main` trigger the Pages workflow.
 
 Keep one application with separate game, world, component, and service modules. Reconsider major changes with Yoon before implementation.
 
@@ -90,3 +90,11 @@ Use only the public Supabase URL and browser-safe publishable key in `.env.local
 Repository: https://github.com/yoonjoonso/little-world
 
 Use `feat/*`, `fix/*`, and `docs/*` branches with pull requests into `main`. The initial default branch is a minimal repository bootstrap. Keep this specification current. PRs describe actual behavior, checks, and limitations. CI runs tests and the production build. Never deploy or make major architecture changes without Yoon's approval. Do not change repository visibility without a request.
+
+## GitHub Pages preview deployment
+
+The `Publish game to GitHub Pages` workflow tests and builds `dist/`, then publishes it from approved changes on `main`. Vite emits relative asset URLs so the build works at the repository subpath. No Supabase credentials or paid services are needed for this offline preview.
+
+One-time owner setup: repository Settings → Pages → Build and deployment → Source → GitHub Actions. This setting is not exposed by the connected GitHub tools. After setup, publish the reviewed prototype by merging its PR to `main`. The workflow also supports a manual run. Do not merge future changes to `main` without approval to publish them.
+
+The prototype site is public. Its messages and logs remain local to each browser session, and idea drafts remain local to that browser. Hosting alone does not enable multiplayer. No live Supabase migration is needed for the preview.

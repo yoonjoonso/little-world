@@ -18,8 +18,14 @@ npm test
 npm run build
 ```
 
-See [the project specification](docs/PROJECT.md) for scope, architecture, and next milestones. Supabase integration is scaffolded; online multiplayer and AI calls are not enabled in this first slice. No deployment has been approved. Browser interaction QA is still pending because the session preview was unreachable.
+See [the project specification](docs/PROJECT.md) for scope, architecture, and next milestones. Supabase integration is scaffolded; online multiplayer and AI calls are not enabled in this first slice. Free GitHub Pages hosting has been approved; initial setup is pending. Browser interaction QA is still pending because the session preview was unreachable.
 
 ## Workflow
 
 Work on `feat/*`, `fix/*`, or `docs/*` branches and open a pull request into `main`. Do not deploy, add paid services, or change the major architecture without Yoon's approval. Never commit secrets.
+
+## Online preview hosting
+
+The GitHub Pages workflow publishes the static game after approved changes merge into `main`. First enable repository **Settings → Pages → Source → GitHub Actions**. The workflow installs dependencies, runs tests, builds `dist/`, and deploys the build. No custom domain, Supabase configuration, or paid hosting account is needed for this prototype.
+
+Merging to `main` publishes changes, so obtain Yoon's deployment approval before each merge. The hosted prototype remains single-player until Supabase multiplayer is implemented.
