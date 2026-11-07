@@ -1,3 +1,5 @@
+import { WorldUpdates } from './components/WorldUpdates';
+import { acknowledgeUpdates } from './services/worldUpdates';
 import { BuildRequests } from './components/BuildRequests';
 import type { Session } from '@supabase/supabase-js';
 import { AccountPanel } from './components/AccountPanel';
@@ -29,6 +31,7 @@ export function App(){
   },[session]);
   const host=useRef<HTMLDivElement>(null);
   const [state,setState]=useState(initial);
+  const [nightColors,setNightColors]=useState(()=>{try{return localStorage.getItem('little-world:night-colors')!=='off';}catch{return true;}});
   const [today,setToday]=useState(()=>new Date());
   const [sprint,setSprint]=useState(false);
   useEffect(()=>{const timer=window.setInterval(()=>setToday(new Date()),30_000);return()=>window.clearInterval(timer);},[]);
@@ -39,7 +42,7 @@ export function App(){
   const worldRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{
     const onState=(e:Event)=>setState((e as CustomEvent<GameState>).detail);
-    const onInteract=(e:Event)=>{setModal((e as CustomEvent<Interaction>).detail);};
+    const onInteract=(e:Event)=>{const kind=(e as CustomEvent<Interaction>).detail;if(kind==='npc')acknowledgeUpdates('npc','milo');setModal(kind);};
     gameEvents.addEventListener('state',onState);gameEvents.addEventListener('interact',onInteract);
     const game=new Phaser.Game({type:Phaser.AUTO,parent:host.current!,width:960,height:640,backgroundColor:'#90ac72',pixelArt:true,roundPixels:true,scale:{mode:Phaser.Scale.RESIZE},scene:[WorldScene],input:{keyboard:true},audio:{noAudio:true}});
     return()=>{gameEvents.removeEventListener('state',onState);gameEvents.removeEventListener('interact',onInteract);game.destroy(true);};
@@ -48,12 +51,13 @@ export function App(){
   function close(){setModal(null);worldRef.current?.focus();}
   function direction(key:'up'|'down'|'left'|'right',label:string){return <button aria-label={`Walk ${key}`} onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);controls[key]=true;}} onPointerUp={()=>{controls[key]=false;}} onPointerCancel={()=>{controls[key]=false;}} onLostPointerCapture={()=>{controls[key]=false;}}>{label}</button>;}
   const lighting=worldLighting(today);
-  return <div className={`app lighting-${lighting}`}>
+  return <div className={`app lighting-${lighting} ${nightColors?"night-colors-on":""}`}>
     <main id="world" ref={worldRef} className="world" tabIndex={0} onKeyDown={e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();}} aria-label="Game. Use WASD or arrow keys to walk, E or Space to interact.">
       <div ref={host} className="game-host"/><div className="night-overlay" aria-hidden="true"/>
     </main>
+    <WorldUpdates/>
     <header className="game-hud"><div className="place-chip"><span className="presence-dot is-unknown" role="img" aria-label="Lila’s online status is unavailable; shared presence is not connected"/><div><span className="game-name">our little world</span><strong>{session&&shared.players.length?'Companion · '+shared.players[0].map_id:'Companion · not connected'}</strong></div><span className="day-chip"><span role="img" aria-label={`World lighting: ${lighting}`}>{lighting==='day'?'☀':'☾'}</span> {today.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</span></div><div className="hud-actions"><span className="offline-chip">{session?(shared.error?'Connection issue':shared.worldId?'Shared world':'Connecting…'):'Single-player preview'}</span><button className="help-toggle" aria-label="Show game controls" aria-expanded={helpOpen} onClick={()=>setHelpOpen(v=>!v)}>?</button></div></header>
-    <div hidden={!helpOpen}><section className="help-panel" aria-label="Game controls"><button className="close" aria-label="Close game controls" onClick={()=>setHelpOpen(false)}>×</button><h2>Make yourself at home.</h2><AccountPanel onSession={acceptSession}/>{shared.error&&<p role="alert">{shared.error}</p>}<p>Current location: {maps[state.map].name}<br/>World lighting: {lighting}. Day is 7am–7pm Pacific; night is 7pm–7am. The calendar date follows your device.</p><p><kbd>W A S D</kbd> or arrow keys to walk.<br/><kbd>Shift</kbd> to sprint.<br/><kbd>Space</kbd> / <kbd>E</kbd> to interact.</p><p>On mobile, hold the directional pad to move and tap the action button. Toggle Run for faster movement. Find the cottage door, take a seat at your desk, or say hello to Milo.</p><p className="honest-note">{session?'Shared-play testing is enabled when your world connection succeeds. Online presence and seat reservations are still pending.':'This is a single-player preview. Messages and activity are local to this session.'}</p></section></div>
+    <div hidden={!helpOpen}><section className="help-panel" aria-label="Game controls"><button className="close" aria-label="Close game controls" onClick={()=>setHelpOpen(false)}>×</button><h2>Make yourself at home.</h2><label><input type="checkbox" checked={nightColors} onChange={e=>{setNightColors(e.target.checked);try{localStorage.setItem("little-world:night-colors",e.target.checked?"on":"off");}catch{}}}/> Gentle night colors (turn off for regular lighting)</label><AccountPanel onSession={acceptSession}/>{shared.error&&<p role="alert">{shared.error}</p>}<p>Current location: {maps[state.map].name}<br/>World lighting: {lighting}. Day is 7am–7pm Pacific; night is 7pm–7am. The calendar date follows your device.</p><p><kbd>W A S D</kbd> or arrow keys to walk.<br/><kbd>Shift</kbd> to sprint.<br/><kbd>Space</kbd> / <kbd>E</kbd> to interact.</p><p>On mobile, hold the directional pad to move and tap the action button. Toggle Run for faster movement. Find the cottage door, take a seat at your desk, or say hello to Milo.</p><p className="honest-note">{session?'Shared-play testing is enabled when your world connection succeeds. Online presence and seat reservations are still pending.':'This is a single-player preview. Messages and activity are local to this session.'}</p></section></div>
     <div className="interaction-hud" aria-live="polite">{state.prompt&&<button className="prompt" disabled={!!modal||chatOpen} onClick={()=>{controls.interact=true;}}><kbd>Space / E</kbd><span>{state.prompt}</span></button>}</div>
     <div className="touch-controls" aria-label="Touch controls" inert={!!modal||chatOpen}><div className="dpad">{direction('up','↑')}{direction('left','←')}{direction('down','↓')}{direction('right','→')}<span className="dpad-center" aria-hidden="true">·</span></div><div className="touch-actions"><button className="sprint-toggle" aria-pressed={sprint} onClick={()=>{setSprint(v=>!v);controls.sprint=!sprint;}}>{sprint?"Running":"Run"}</button><button className="action" onClick={()=>{controls.interact=true;}} disabled={!state.prompt||!!modal||chatOpen}><span className="action-symbol">✦</span><span>{state.prompt||'Interact'}</span></button></div></div>
     <ActivityPanel key={session?.user.id||"offline"} shared={session?shared:null} ownId={session?.user.id} sendShared={async body=>{if(!connection.current)throw new Error("Not connected");await connection.current.send("message",body);}} open={chatOpen} onToggle={()=>{setChatOpen(v=>!v);resetControls();}} onClose={()=>{setChatOpen(false);worldRef.current?.focus();}}/>

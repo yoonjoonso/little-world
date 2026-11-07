@@ -12,4 +12,6 @@
 
 .presence-dot{display:block;width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#96a092;box-shadow:0 0 0 4px #96a09220}.presence-dot.is-online{background:#65a46b}.presence-dot.is-offline{background:#879082}.place-chip strong{overflow-wrap:anywhere}
 
-.night-overlay{position:absolute;inset:0;pointer-events:none;background:#172544;mix-blend-mode:multiply;opacity:0}.lighting-night .night-overlay{opacity:.52}.day-chip>span{margin-right:3px}
+.night-overlay{position:absolute;inset:0;pointer-events:none;background:#a29adf;mix-blend-mode:soft-light;opacity:0}.lighting-night.night-colors-on .night-overlay{opacity:.32}.day-chip>span{margin-right:3px}
+
+.world-updates{position:fixed;top:90px;right:max(18px,env(safe-area-inset-right));z-index:15;font-size:12px}.world-updates>button{background:#faf2d8ed;color:#42543b;border:1px solid #c9d2b6;border-radius:16px;padding:10px 14px;min-height:44px}.world-updates strong{color:#78582b}.world-updates section{margin-top:8px;padding:16px;background:#faf6e9;color:#42543b;border-radius:14px;max-width:min(320px,85vw);max-height:45dvh;overflow:auto;box-shadow:0 8px 28px #21372830}.world-updates section p{line-height:1.5;overflow-wrap:anywhere}.world-updates section small{font-size:10px}
