@@ -7,6 +7,7 @@ import { worldNpcs } from './npcs';
 import { planningPlots,requestBoard } from './planning';
 export interface EditableTarget {id:string;name:string;kind:'building'|'npc'|'object'|'map'}
 export const editableTargets:EditableTarget[]=[
+  {id:'big-bear',name:'Big Bear nature trails and lake',kind:'map'},
   ...activityTargets.filter(target=>target.map==='garden').map(target=>({id:target.id,name:target.name,kind:'object' as const})),
   ...villageBuildings.map(building=>({id:building.id,name:building.name,kind:'building' as const})),
   {id:park.id,name:park.name,kind:'building'},

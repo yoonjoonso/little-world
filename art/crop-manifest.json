@@ -1,0 +1,508 @@
+[
+  {
+    "key": "cozy.grass",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      27,
+      30,
+      257,
+      252
+    ],
+    "output": "single/cozy-grass.png"
+  },
+  {
+    "key": "cozy.stone",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      342,
+      31,
+      255,
+      252
+    ],
+    "output": "single/cozy-stone.png"
+  },
+  {
+    "key": "cozy.wood",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      656,
+      31,
+      255,
+      252
+    ],
+    "output": "single/cozy-wood.png"
+  },
+  {
+    "key": "cozy.sand",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      974,
+      31,
+      251,
+      252
+    ],
+    "output": "single/cozy-sand.png"
+  },
+  {
+    "key": "cozy.wall",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      17,
+      350,
+      282,
+      246
+    ],
+    "output": "single/cozy-wall.png"
+  },
+  {
+    "key": "cozy.roof",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      335,
+      373,
+      273,
+      215
+    ],
+    "output": "single/cozy-roof.png"
+  },
+  {
+    "key": "cozy.door",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      682,
+      349,
+      231,
+      253
+    ],
+    "output": "single/cozy-door.png"
+  },
+  {
+    "key": "cozy.window",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      963,
+      383,
+      271,
+      199
+    ],
+    "output": "single/cozy-window.png"
+  },
+  {
+    "key": "cozy.tree",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      17,
+      648,
+      280,
+      286
+    ],
+    "output": "single/cozy-tree.png"
+  },
+  {
+    "key": "cozy.fence",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      341,
+      731,
+      260,
+      137
+    ],
+    "output": "single/cozy-fence.png"
+  },
+  {
+    "key": "cozy.gate",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      666,
+      721,
+      237,
+      193
+    ],
+    "output": "single/cozy-gate.png"
+  },
+  {
+    "key": "cozy.shrub",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      967,
+      721,
+      267,
+      193
+    ],
+    "output": "single/cozy-shrub.png"
+  },
+  {
+    "key": "cozy.bench",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      17,
+      1007,
+      281,
+      202
+    ],
+    "output": "single/cozy-bench.png"
+  },
+  {
+    "key": "cozy.desk",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      336,
+      993,
+      276,
+      210
+    ],
+    "output": "single/cozy-desk.png"
+  },
+  {
+    "key": "cozy.chair",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      688,
+      984,
+      194,
+      229
+    ],
+    "output": "single/cozy-chair.png"
+  },
+  {
+    "key": "cozy.planter",
+    "source": "world/cozy-atlas-v1.png",
+    "crop": [
+      1000,
+      980,
+      214,
+      238
+    ],
+    "output": "single/cozy-planter.png"
+  },
+  {
+    "key": "lucia.standing",
+    "source": "characters/lucia-v1.png",
+    "crop": [
+      140,
+      75,
+      390,
+      1090
+    ],
+    "output": "single/lucia-standing.png"
+  },
+  {
+    "key": "lucia.seated",
+    "source": "characters/lucia-v1.png",
+    "crop": [
+      750,
+      155,
+      335,
+      1010
+    ],
+    "output": "single/lucia-seated.png"
+  },
+  {
+    "key": "yoon.front",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      195,
+      10,
+      215,
+      495
+    ],
+    "output": "single/yoon-front.png"
+  },
+  {
+    "key": "yoon.left",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      660,
+      15,
+      205,
+      490
+    ],
+    "output": "single/yoon-left.png"
+  },
+  {
+    "key": "yoon.right",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      1120,
+      15,
+      230,
+      490
+    ],
+    "output": "single/yoon-right.png"
+  },
+  {
+    "key": "yoon.back",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      195,
+      520,
+      215,
+      490
+    ],
+    "output": "single/yoon-back.png"
+  },
+  {
+    "key": "yoon.sitFront",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      650,
+      575,
+      230,
+      430
+    ],
+    "output": "single/yoon-sitFront.png"
+  },
+  {
+    "key": "yoon.sitBack",
+    "source": "characters/yoon-v1.png",
+    "crop": [
+      1100,
+      575,
+      270,
+      420
+    ],
+    "output": "single/yoon-sitBack.png"
+  },
+  {
+    "key": "capybaras.mochi",
+    "source": "characters/capybaras-v1.png",
+    "crop": [
+      10,
+      80,
+      650,
+      1020
+    ],
+    "output": "single/capybaras-mochi.png"
+  },
+  {
+    "key": "capybaras.lilito",
+    "source": "characters/capybaras-v1.png",
+    "crop": [
+      740,
+      350,
+      480,
+      750
+    ],
+    "output": "single/capybaras-lilito.png"
+  },
+  {
+    "key": "storefronts.store",
+    "source": "buildings/storefronts-v1.png",
+    "crop": [
+      10,
+      410,
+      590,
+      550
+    ],
+    "output": "single/storefronts-store.png"
+  },
+  {
+    "key": "storefronts.grocery",
+    "source": "buildings/storefronts-v1.png",
+    "crop": [
+      603,
+      345,
+      642,
+      615
+    ],
+    "output": "single/storefronts-grocery.png"
+  },
+  {
+    "key": "faith.church",
+    "source": "buildings/faith-v1.png",
+    "crop": [
+      61,
+      13,
+      503,
+      611
+    ],
+    "output": "single/faith-church.png"
+  },
+  {
+    "key": "faith.mosque",
+    "source": "buildings/faith-v1.png",
+    "crop": [
+      658,
+      18,
+      538,
+      608
+    ],
+    "output": "single/faith-mosque.png"
+  },
+  {
+    "key": "faith.synagogue",
+    "source": "buildings/faith-v1.png",
+    "crop": [
+      34,
+      704,
+      559,
+      504
+    ],
+    "output": "single/faith-synagogue.png"
+  },
+  {
+    "key": "faith.gurdwara",
+    "source": "buildings/faith-v1.png",
+    "crop": [
+      656,
+      654,
+      549,
+      560
+    ],
+    "output": "single/faith-gurdwara.png"
+  },
+  {
+    "key": "parkWater.lake",
+    "source": "objects/park-water-v1.png",
+    "crop": [
+      14,
+      219,
+      791,
+      505
+    ],
+    "output": "single/parkWater-lake.png"
+  },
+  {
+    "key": "onsen.pool",
+    "source": "objects/onsen-v1.png",
+    "crop": [
+      40,
+      230,
+      1160,
+      800
+    ],
+    "output": "single/onsen-pool.png"
+  },
+  {
+    "key": "living.tv",
+    "source": "objects/living-v1.png",
+    "crop": [
+      105,
+      180,
+      680,
+      600
+    ],
+    "output": "single/living-tv.png"
+  },
+  {
+    "key": "living.sofa",
+    "source": "objects/living-v1.png",
+    "crop": [
+      840,
+      180,
+      910,
+      585
+    ],
+    "output": "single/living-sofa.png"
+  },
+  {
+    "key": "home.bed",
+    "source": "objects/home-furniture-v1.png",
+    "crop": [
+      60,
+      20,
+      500,
+      590
+    ],
+    "output": "single/home-bed.png"
+  },
+  {
+    "key": "home.bath",
+    "source": "objects/home-furniture-v1.png",
+    "crop": [
+      645,
+      75,
+      585,
+      480
+    ],
+    "output": "single/home-bath.png"
+  },
+  {
+    "key": "home.bookcase",
+    "source": "objects/home-furniture-v1.png",
+    "crop": [
+      85,
+      650,
+      460,
+      580
+    ],
+    "output": "single/home-bookcase.png"
+  },
+  {
+    "key": "home.workDesk",
+    "source": "objects/home-furniture-v1.png",
+    "crop": [
+      630,
+      700,
+      600,
+      500
+    ],
+    "output": "single/home-workDesk.png"
+  },
+  {
+    "key": "office.frontDesk",
+    "source": "objects/office-bath-v1.png",
+    "crop": [
+      20,
+      440,
+      625,
+      610
+    ],
+    "output": "single/office-frontDesk.png"
+  },
+  {
+    "key": "office.shower",
+    "source": "objects/office-bath-v1.png",
+    "crop": [
+      685,
+      220,
+      530,
+      850
+    ],
+    "output": "single/office-shower.png"
+  },
+  {
+    "key": "kitchen.sink",
+    "source": "objects/kitchen-v1.png",
+    "crop": [
+      10,
+      20,
+      610,
+      580
+    ],
+    "output": "single/kitchen-sink.png"
+  },
+  {
+    "key": "kitchen.stove",
+    "source": "objects/kitchen-v1.png",
+    "crop": [
+      710,
+      30,
+      460,
+      560
+    ],
+    "output": "single/kitchen-stove.png"
+  },
+  {
+    "key": "kitchen.fridge",
+    "source": "objects/kitchen-v1.png",
+    "crop": [
+      125,
+      630,
+      375,
+      600
+    ],
+    "output": "single/kitchen-fridge.png"
+  },
+  {
+    "key": "kitchen.diningTable",
+    "source": "objects/kitchen-v1.png",
+    "crop": [
+      630,
+      650,
+      610,
+      580
+    ],
+    "output": "single/kitchen-diningTable.png"
+  }
+]

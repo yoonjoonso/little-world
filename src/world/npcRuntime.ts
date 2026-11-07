@@ -1,3 +1,4 @@
+import { homeExterior } from './layout';
 import { maps, type MapId, type Point } from './model';
 import { findRoute } from './navigation';
 import { worldNpcs } from './npcs';
@@ -5,9 +6,9 @@ import { npcDefinitions, planNpcRoutine, type NpcPhase } from './npcRoutines';
 
 interface Place {id:string;map:MapId;slots:Point[];waiting:Point[]}
 const places:Place[]=[
-  {id:'park.walk',map:'garden',slots:[{x:1030,y:1350},{x:1080,y:1350},{x:1030,y:1400}],waiting:[{x:1080,y:1400},{x:1130,y:1400}]},
-  {id:'northgate.browsing',map:'garden',slots:[{x:1960,y:835},{x:2010,y:835}],waiting:[{x:1960,y:890},{x:2010,y:890}]},
-  {id:'village.commons',map:'garden',slots:[{x:540,y:520},{x:590,y:520}],waiting:[{x:540,y:575},{x:590,y:575}]},
+  {id:'park.walk',map:'garden',slots:[{x:1550,y:3520},{x:1600,y:3520},{x:1650,y:3520}],waiting:[{x:1550,y:3580},{x:1600,y:3580}]},
+  {id:'northgate.browsing',map:'garden',slots:[{x:3190,y:3080},{x:3240,y:3080}],waiting:[{x:3190,y:3140},{x:3240,y:3140}]},
+  {id:'village.commons',map:'garden',slots:[{x:1350,y:1450},{x:1400,y:1450}],waiting:[{x:1350,y:1510},{x:1400,y:1510}]},
 ];
 export interface NpcState {id:string;map:MapId;position:Point;phase:NpcPhase;areaId:string;home:boolean;route:Point[];reservation?:string;retryAt:number;waitingSince?:number}
 const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -22,7 +23,7 @@ export class NpcRuntime {
   private landing(id:string){const npc=worldNpcs.find(n=>n.id===id)!;return id==='lucia'?{x:820,y:630}:npc.bathing?npc.approach():npc.position();}
   private release(state:NpcState){if(state.reservation)this.reservations.delete(state.reservation);state.reservation=undefined;}
   private route(state:NpcState,target:Point,targetMap:MapId){
-    const endpoint=state.map===targetMap?target:state.map==='cottage'?{x:600,y:808}:{x:466,y:350};
+    const endpoint=state.map===targetMap?target:state.map==='cottage'?{x:600,y:808}:homeExterior.entrance;
     const route=findRoute(maps[state.map],state.position,endpoint);
     if(!route){state.phase='blocked';state.retryAt=this.elapsed+10000;return false;}
     state.route=route;state.phase='walking';return true;
