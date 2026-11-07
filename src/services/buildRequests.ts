@@ -1,14 +1,18 @@
+import { targetsForKind } from '../world/editableTargets';
 import { planningPlots } from '../world/planning';
 export type RequestKind='building'|'npc'|'object'|'map';
-export interface BuildRequest {id:string;kind:RequestKind;title:string;description:string;location:string;plotId?:string;status:'requested';createdAt:string;references:File[]}
+export interface BuildRequest {id:string;kind:RequestKind;title:string;description:string;location:string;plotId?:string;operation?:'create'|'update';targetId?:string;status:'requested';createdAt:string;references:File[]}
 const kinds:RequestKind[]=['building','npc','object','map'];
-export function makeRequest(input:{kind:RequestKind;title:string;description:string;location:string;references:File[];plotId?:string}):BuildRequest{
+export function makeRequest(input:{kind:RequestKind;title:string;description:string;location:string;references:File[];plotId?:string;operation?:'create'|'update';targetId?:string}):BuildRequest{
   if(input.plotId&&!planningPlots.some(plot=>plot.id===input.plotId))throw new Error('Choose a known planning plot.');
+  const operation=input.operation||'create';
+  if(!['create','update'].includes(operation))throw new Error('Choose create or update.');
+  if(operation==='update'&&!targetsForKind(input.kind).some(target=>target.id===input.targetId))throw new Error('Choose an existing target for this update.');
   const title=input.title.trim(),description=input.description.trim(),location=input.location.trim();
   if(!kinds.includes(input.kind)||!title||title.length>80||!description||description.length>2000||!location||location.length>120)throw new Error('Add a title, a description, and a location within the displayed limits.');
   if(input.references.length>3)throw new Error('Attach up to three reference photos.');
   for(const file of input.references)if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw new Error('Reference photos must be JPG, PNG, or WebP and no larger than 5 MB each.');
-  return {...input,title,description,location,id:crypto.randomUUID(),status:'requested',createdAt:new Date().toISOString()};
+  return {...input,operation,targetId:operation==='update'?input.targetId:undefined,title,description,location,id:crypto.randomUUID(),status:'requested',createdAt:new Date().toISOString()};
 }
 function database():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const request=indexedDB.open('little-world-build-requests',1);request.onupgradeneeded=()=>request.result.createObjectStore('requests',{keyPath:'id'});request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 export async function saveRequest(value:BuildRequest):Promise<void>{const db=await database();try{await new Promise<void>((resolve,reject)=>{const tx=db.transaction('requests','readwrite');tx.objectStore('requests').put(value);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Saving was interrupted.'));});}finally{db.close();}}

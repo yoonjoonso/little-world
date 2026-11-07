@@ -27,9 +27,11 @@ export class WorldScene extends Phaser.Scene {
   private lastState='';
   private tick=0;
   private seated=false;
+  private facing:'front'|'back'|'left'|'right'='front';
   private highlight!: Phaser.GameObjects.Graphics;
   constructor() { super('world'); }
   preload() {
+    this.load.image('yoon',`${import.meta.env.BASE_URL}assets/characters/yoon-v1.png`);
     this.load.image('capybaras',`${import.meta.env.BASE_URL}assets/characters/capybaras-v1.png`);
     this.load.image('onsen',`${import.meta.env.BASE_URL}assets/objects/onsen-v1.png`);
     this.load.image('requestBoard',`${import.meta.env.BASE_URL}assets/objects/request-board-v1.png`);
@@ -48,6 +50,9 @@ export class WorldScene extends Phaser.Scene {
     character.add('standing',0,140,75,390,1090);
     character.add('seated',0,750,155,335,1010);
     character.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    const yoon=this.textures.get('yoon');
+    for(const [name,[x,y,w,h]] of Object.entries({front:[195,10,215,495],left:[660,15,205,490],right:[1120,15,230,490],back:[195,520,215,490],sitFront:[650,575,230,430],sitBack:[1100,575,270,420]}))yoon.add(name,0,x,y,w,h);
+    yoon.setFilter(Phaser.Textures.FilterMode.LINEAR);
     const capybaras=this.textures.get('capybaras');capybaras.add('mochi',0,10,80,650,1020);capybaras.add('lilito',0,740,350,480,750);capybaras.setFilter(Phaser.Textures.FilterMode.LINEAR);
     this.textures.get('onsen').add('pool',0,40,230,1160,800);
     const furnitureFrames:Record<string,Record<string,number[]>>={
@@ -105,6 +110,13 @@ export class WorldScene extends Phaser.Scene {
     if(seated){g.clear();g.fillStyle(0x273d32,.22);g.fillEllipse(0,1,28,10);this.rect(g,-12,-8,9,7,0x39483e);this.rect(g,3,-8,9,7,0x39483e);this.rect(g,-11,-24,22,17,coat);this.rect(g,-15,-24,5,11,0xe3b888);this.rect(g,10,-24,5,11,0xe3b888);this.rect(g,-9,-38,18,16,0xe3b888);this.rect(g,-11,-41,22,8,0x554139);this.rect(g,-5,-32,3,3,0x29392f);this.rect(g,3,-32,3,3,0x29392f);}
     p.add(g); return p;
   }
+  private playerAvatar(x:number,y:number,seated=false){
+    const actor=this.add.container(x,y);
+    const shadow=this.add.graphics();shadow.fillStyle(0x273d32,.18);shadow.fillEllipse(0,0,25,8);
+    const image=this.add.image(0,0,'yoon',seated?'sitFront':this.facing).setOrigin(.5,1).setScale(64/495);
+    actor.add([shadow,image]);actor.setData('avatar',image);
+    return actor;
+  }
   private paint() {
     this.npcNotices.clear();
     this.worldNotices=[];
@@ -113,7 +125,7 @@ export class WorldScene extends Phaser.Scene {
     const g=this.add.graphics();
     if(this.mapId==='garden')this.garden(g);else this.cottage(g);
     this.paintNpcs();
-    this.actor=this.person(this.position.x,this.position.y,0xd78b62,this.seated);
+    this.actor=this.playerAvatar(this.position.x,this.position.y,this.seated);
     this.highlight=this.add.graphics().setDepth(900);
     this.lastState='';
     this.resizeWorld();
@@ -210,6 +222,8 @@ export class WorldScene extends Phaser.Scene {
     }
     let dx=0,dy=0;
     if(!controls.blocked&&!this.seated){dx=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left);dy=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);}
+    if(!this.seated&&(dx||dy))this.facing=dy<0?'back':dy>0?'front':dx<0?'left':'right';
+    const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setFrame(this.seated?'sitFront':this.facing);
     this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
     this.cameras.main.centerOn(this.position.x,this.position.y);
     this.actor.setPosition(this.position.x,this.position.y).setDepth(this.position.y);
@@ -230,7 +244,7 @@ export class WorldScene extends Phaser.Scene {
     const prompt=this.seated?'Stand up':portal?portal.label:pending?'Inspect changes':desk?'Sit at your desk':npc?`Talk to ${npc.name}`:plot?`Plan ${plot.name}`:board?'Open the request board':'';
     const pressed=Phaser.Input.Keyboard.JustDown(this.keys.E)||Phaser.Input.Keyboard.JustDown(this.keys.SPACE)||controls.interact;
     controls.interact=false;
-    if(pressed&&!controls.blocked){if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62,true);logActivity('You sat at your desk.');}else if(npc){gameEvents.dispatchEvent(new CustomEvent('talk-npc',{detail:npc.id}));}else if(kind) interact(kind);}
+    if(pressed&&!controls.blocked){if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y,true);logActivity('You sat at your desk.');}else if(npc){gameEvents.dispatchEvent(new CustomEvent('talk-npc',{detail:npc.id}));}else if(kind) interact(kind);}
     const key=`${this.seated}:${this.mapId}:${prompt}:${Math.round(this.position.x/8)}:${Math.round(this.position.y/8)}`;
     if(key!==this.lastState){this.lastState=key;publish({map:this.mapId,prompt,interaction:kind,x:this.position.x,y:this.position.y,plotId:plot?.id});}
   }
