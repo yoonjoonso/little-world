@@ -1,7 +1,9 @@
-export type RequestKind='building'|'npc'|'object';
-export interface BuildRequest {id:string;kind:RequestKind;title:string;description:string;location:string;status:'requested';createdAt:string;references:File[]}
-const kinds:RequestKind[]=['building','npc','object'];
-export function makeRequest(input:{kind:RequestKind;title:string;description:string;location:string;references:File[]}):BuildRequest{
+import { planningPlots } from '../world/planning';
+export type RequestKind='building'|'npc'|'object'|'map';
+export interface BuildRequest {id:string;kind:RequestKind;title:string;description:string;location:string;plotId?:string;status:'requested';createdAt:string;references:File[]}
+const kinds:RequestKind[]=['building','npc','object','map'];
+export function makeRequest(input:{kind:RequestKind;title:string;description:string;location:string;references:File[];plotId?:string}):BuildRequest{
+  if(input.plotId&&!planningPlots.some(plot=>plot.id===input.plotId))throw new Error('Choose a known planning plot.');
   const title=input.title.trim(),description=input.description.trim(),location=input.location.trim();
   if(!kinds.includes(input.kind)||!title||title.length>80||!description||description.length>2000||!location||location.length>120)throw new Error('Add a title, a description, and a location within the displayed limits.');
   if(input.references.length>3)throw new Error('Attach up to three reference photos.');

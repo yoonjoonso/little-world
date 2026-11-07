@@ -1,19 +1,17 @@
+import { homePerimeter, requestBoard } from './planning';
+import { homeSolids } from './home';
 export type MapId = 'garden' | 'cottage';
 export interface Point { x: number; y: number }
 export interface Rect extends Point { w: number; h: number }
 export interface Portal { area: Rect; target: MapId; spawn: Point; label: string }
 export interface WorldMap { id: MapId; name: string; width: number; height: number; spawn: Point; solids: Rect[]; portals: Portal[] }
 export const maps: Record<MapId, WorldMap> = {
-  garden: {
-    id: 'garden', name: 'Clover Garden', width: 960, height: 640, spawn: { x: 480, y: 458 },
-    solids: [{x:342,y:160,w:244,h:168},{x:72,y:379,w:192,h:140},{x:704,y:196,w:158,h:116},{x:727,y:408,w:132,h:94}],
-    portals: [{area:{x:445,y:321,w:40,h:47},target:'cottage',spawn:{x:480,y:492},label:'Enter the cottage'}]
-  },
-  cottage: {
-    id:'cottage', name:'Our Cottage', width:960,height:640,spawn:{x:480,y:492},
-    solids:[{x:0,y:0,w:960,h:136},{x:0,y:0,w:210,h:640},{x:750,y:0,w:210,h:640},{x:0,y:560,w:960,h:80},{x:238,y:180,w:130,h:98},{x:568,y:169,w:146,h:105},{x:425,y:302,w:115,h:72}],
-    portals:[{area:{x:446,y:510,w:68,h:48},target:'garden',spawn:{x:466,y:380},label:'Back to the garden'}]
-  }
+  garden:{id:'garden',name:'Village Commons',width:1440,height:1120,spawn:{x:466,y:430},
+    solids:[{x:342,y:160,w:244,h:168},requestBoard.solid],
+    portals:[{area:{x:445,y:321,w:40,h:47},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
+  cottage:{id:'cottage',name:'Our Home & Office',width:1200,height:960,spawn:{x:600,y:770},
+    solids:[...homePerimeter,...homeSolids()],
+    portals:[{area:{x:558,y:800,w:84,h:40},target:'garden',spawn:{x:466,y:395},label:'Back to the village'}]},
 };
 export function overlaps(a: Rect,b: Rect) { return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 export function canStand(map: WorldMap, p: Point) {

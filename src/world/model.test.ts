@@ -1,4 +1,6 @@
 import { describe,expect,it } from 'vitest';
+import { homeLayout, homeRooms, lucia, studyDesk, homeAnchor } from './home';
+import { planningPlots, requestBoard } from './planning';
 import {canStand,maps,move,portalAt,makeDraft} from './model';
 describe('movement and map routes',()=>{
   it('blocks walls while allowing movement along their edge',()=>{
@@ -12,20 +14,39 @@ describe('movement and map routes',()=>{
   it('caps large frame deltas so a stalled tab cannot jump across obstacles',()=>{
     expect(move(maps.garden,maps.garden.spawn,1,0,10000).x-maps.garden.spawn.x).toBe(7.5);
   });
-  it('provides legal spawns and reachable round-trip portals',()=>{
+  it('uses accessible, explicit entrances between the compact village and larger home',()=>{
     for(const map of Object.values(maps)){
       expect(canStand(map,map.spawn)).toBe(true);
       for(const portal of map.portals)expect(canStand(maps[portal.target],portal.spawn)).toBe(true);
     }
-    expect(portalAt(maps.garden,{x:466,y:350})?.target).toBe('cottage');
-    expect(portalAt(maps.cottage,{x:480,y:533})?.target).toBe('garden');
-    let point={x:480,y:492};for(let i=0;i<6;i++) point=move(maps.cottage,point,0,1,50);
-    expect(portalAt(maps.cottage,point)?.target).toBe('garden');
+    expect(portalAt(maps.garden,{x:464,y:350})?.target).toBe('cottage');
+    expect(portalAt(maps.cottage,{x:600,y:818})?.target).toBe('garden');
+    expect(canStand(maps.cottage,{x:600,y:838})).toBe(true);
+    expect(canStand(maps.cottage,{x:550,y:845})).toBe(false);
   });
-  it('allows a player to reach and leave the desk chair',()=>{
-    let point={x:480,y:492};for(let i=0;i<10;i++)point=move(maps.cottage,point,0,-1,50);
-    expect(point.y).toBeLessThan(430);expect(canStand(maps.cottage,{x:480,y:433})).toBe(true);
+  it('keeps every room and both desk approaches reachable from the entrance',()=>{
+    const map=maps.cottage;
+    const start={...map.spawn};
+    const queue=[start],seen=new Set([`${start.x},${start.y}`]);
+    for(let i=0;i<queue.length;i++){
+      const p=queue[i];
+      for(const [dx,dy] of [[10,0],[-10,0],[0,10],[0,-10]]){
+        const next={x:p.x+dx,y:p.y+dy},key=`${next.x},${next.y}`;
+        if(!seen.has(key)&&canStand(map,next)){seen.add(key);queue.push(next);}
+      }
+    }
+    const targets=[lucia.approach,studyDesk.approach,studyDesk.stand,...homeLayout.map(room=>homeAnchor(room.id,{x:homeRooms[room.definition].width/2,y:265}))];
+    for(const target of targets){
+      expect(canStand(map,target),JSON.stringify(target)).toBe(true);
+      expect(queue.some(p=>Math.hypot(p.x-target.x,p.y-target.y)<15)).toBe(true);
+    }
+    // Sitting occupies the desk footprint; standing returns to a walkable anchor.
+    expect(canStand(map,studyDesk.seat)).toBe(false);
   });
+});
+it('keeps planning plots empty and their request anchors walkable',()=>{
+  expect(canStand(maps.garden,requestBoard.approach)).toBe(true);
+  for(const plot of planningPlots){expect(canStand(maps.garden,plot.approach)).toBe(true);expect(canStand(maps.garden,{x:plot.bounds.x+plot.bounds.w/2,y:plot.bounds.y+plot.bounds.h/2})).toBe(true);}
 });
 describe('idea drafts',()=>{
   it('rejects empty and oversized proposals before saving',()=>{
@@ -41,6 +62,6 @@ describe('idea drafts',()=>{
  const diagonal=move(maps.garden,p,1,1,50,1.8);
  expect(run.x-p.x).toBeCloseTo((walk.x-p.x)*1.8);
  expect(Math.hypot(diagonal.x-p.x,diagonal.y-p.y)).toBeCloseTo(run.x-p.x);
- const blocked=move(maps.garden,{x:466,y:340},0,-1,50,1.8);
- expect(blocked.y).toBe(340);
+ const blocked=move(maps.garden,{x:330,y:250},1,0,50,1.8);
+ expect(blocked.x).toBe(330);
  });
