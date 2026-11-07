@@ -1,6 +1,6 @@
 # Our Little World
 
-Status: first single-player prototype is live at https://yoonjoonso.github.io/little-world/. A viewport-filling interface update is in development on `feat/immersive-game-layout`; it is not yet approved for deployment.
+Status: first single-player prototype is live at https://yoonjoonso.github.io/little-world/. The viewport-filling interface is live. Routine publishing is authorized by Yoon as of November 6, 2026.
 Owners: Yoon owns engine/code decisions; Yoon and Lila shape the world and content.
 
 ## Product
@@ -16,7 +16,7 @@ The city and buildings are not yet finalized. The garden and cottage are disposa
 - Vite: local development and static production build.
 - Supabase: planned Auth, Postgres, private Realtime presence/events, and Storage for uploaded assets. Initial client and unapplied schema are included. The playable prototype does not contact Supabase without configuration.
 - GitHub: source, documentation, asset history, feature branches, pull requests, and CI.
-- Hosting: GitHub Pages for the public static prototype, using the existing public GitHub repository. Supabase remains the planned separate backend. Future deployments need Yoon's approval; approved merges to `main` trigger the Pages workflow.
+- Hosting: GitHub Pages for the public static prototype, using the existing public GitHub repository. Supabase remains the planned separate backend. Routine publishing is authorized for now; approved merges to `main` trigger the Pages workflow.
 
 Keep one application with separate game, world, component, and service modules. Reconsider major changes with Yoon before implementation.
 
@@ -30,7 +30,7 @@ Keep one application with separate game, world, component, and service modules. 
 - [x] E / Space and a mobile Interact button share the same interaction action.
 - [x] A scripted conversational NPC with reply choices.
 - [x] An under-construction board that saves local idea drafts, without building them automatically.
-- [x] Collapsible in-game activity overlay with All, Messages, and Logs filters; a badge counts unread activity while collapsed.
+- [x] Collapsible in-game activity overlay with Messages and Logs tabs; a badge counts unread messages while collapsed.
 - [x] Local messages and semantic logs for map transitions and sitting/standing.
 - [ ] Live, authenticated two-player sync. Current UI explicitly says offline and local.
 - [ ] Browser verification complete. The initial deployed game was visually checked; reliable keyboard/touch interaction QA and the new layout's browser QA remain pending. The session browser cannot reach the local preview server.
@@ -89,13 +89,13 @@ Use only the public Supabase URL and browser-safe publishable key in `.env.local
 
 Repository: https://github.com/yoonjoonso/little-world
 
-Use `feat/*`, `fix/*`, and `docs/*` branches with pull requests into `main`. The initial default branch is a minimal repository bootstrap. Keep this specification current. PRs describe actual behavior, checks, and limitations. CI runs tests and the production build. Never deploy or make major architecture changes without Yoon's approval. Do not change repository visibility without a request.
+Use `feat/*`, `fix/*`, and `docs/*` branches with pull requests into `main`. The initial default branch is a minimal repository bootstrap. Keep this specification current. PRs describe actual behavior, checks, and limitations. CI runs tests and the production build. Routine merges and publishing are authorized for now. Major architecture changes still require Yoon's approval. Do not change repository visibility without a request.
 
 ## GitHub Pages preview deployment
 
 The `Publish game to GitHub Pages` workflow tests and builds `dist/`, then publishes it from approved changes on `main`. Vite emits relative asset URLs so the build works at the repository subpath. No Supabase credentials or paid services are needed for this offline preview.
 
-Completed owner setup: repository Settings → Pages → Build and deployment → Source → GitHub Actions. The first prototype was published successfully from PR #1. Publish future reviewed changes by merging their PR to `main` after Yoon approves deployment. The workflow also supports a manual run. Do not merge future changes to `main` without approval to publish them.
+Completed owner setup: repository Settings → Pages → Build and deployment → Source → GitHub Actions. The first prototype was published successfully from PR #1. Publish future reviewed changes by merging their PR to `main` under Yoon’s standing routine-publishing authorization. The workflow also supports a manual run. Routine updates may be merged and published directly under the current authorization.
 
 The prototype site is public. Its messages and logs remain local to each browser session, and idea drafts remain local to that browser. Hosting alone does not enable multiplayer. No live Supabase migration is needed for the preview.
 
@@ -103,8 +103,16 @@ The prototype site is public. Its messages and logs remain local to each browser
 
 The game itself fills the browser viewport with no surrounding landing-page header, intro, footer, or fixed sidebar. Phaser resizes with the viewport and the camera follows the player when the map is cropped, preserving artwork proportions. Compact in-game overlays show the location, day, help, and single-player preview status.
 
-Chat starts collapsed. A floating chat button expands/collapses the activity panel without restarting the game or losing the current session's messages, logs, draft message, or filter. Unread activity increments a badge while collapsed and clears when opened. Current notifications are local activity logs; future remote messages will feed the same notification behavior. No simulated incoming messages are shown. Opening chat pauses movement/input for now to prevent typing or touch gestures moving the character.
+Chat starts collapsed. A floating chat button expands/collapses the activity panel without restarting the game or losing the current session's messages, logs, draft message, or filter. Only unread messages increment the badge, clearing when Messages is viewed. Logs never trigger notifications. Future remote messages will feed the same notification behavior. No simulated incoming messages are shown. Opening chat pauses movement/input for now to prevent typing or touch gestures moving the character.
 
 On mobile and other coarse-pointer devices, a persistent D-pad and contextual interaction button sit inside the game. Safe-area offsets keep controls away from device edges. Pointer cancellation, capture loss, tab blur, and hidden-page transitions release held directions. Chat has its own scrolling area; the page itself does not scroll. These are first-class mobile controls, not a requirement to use a physical keyboard.
 
 Art direction remains unconfirmed. Compare three more detailed directions using the same cottage/garden scene: detailed cozy pixel art, hand-painted 2D storybook art, and pre-rendered miniature/diorama sprites. Keep the existing placeholder artwork until Yoon selects a direction. Direction images are concept previews, not assets automatically installed into the game. Do not add unconfirmed city buildings as part of the art comparison.
+
+## Rendering, sprint, and message separation
+
+Use integer camera zoom and nearest-neighbor display to avoid blurred fractional enlargement. The camera follows the player and can show less terrain at higher zoom. The HUD shows the viewer’s current local calendar date and refreshes while open. Shift runs at 1.8 times walking speed; mobile has a Run toggle alongside the existing D-pad and Interact button.
+
+Messages is the default chat tab; Logs is separate and All is removed. Logs never produce unread notifications. Current messages are local only.
+
+Possible future NPC queue: authenticated player submits a job in Supabase, an authorized worker claims it, then writes dialogue and validated action proposals before marking it complete. Use pending/processing/completed/failed states, claim leases, idempotent action IDs, expiry, bounded retries, and per-world ownership checks. No live queue or worker has been configured. An existing agent worker may consume its normal plan limits if its supported integration permits this; queueing does not itself supply inference or eliminate API fees. Confirm the worker connection before implementing this architecture.
