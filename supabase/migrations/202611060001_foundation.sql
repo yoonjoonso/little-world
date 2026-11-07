@@ -44,7 +44,7 @@ create table public.player_states (
   map_id text not null default 'garden',
   x double precision not null default 480 check (x between 0 and 100000),
   y double precision not null default 458 check (y between 0 and 100000),
-  activity text not null default 'idle' check (activity in ('idle','walking','sitting','bathing','running','fishing','playing','resting','showering')),
+  activity text not null default 'idle' check (activity in ('idle','walking','sitting','bathing','running','fishing','playing','resting','showering', 'watching')),
   activity_target text,
   activity_slot text,
   updated_at timestamptz not null default now(),

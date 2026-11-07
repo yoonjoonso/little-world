@@ -54,6 +54,7 @@ export class WorldScene extends Phaser.Scene {
     const progress=this.add.graphics();
     const showProgress=(value:number)=>{progress.clear();progress.fillStyle(0xe9e7cf);progress.fillRoundedRect(cx-130,cy,260,10,5);progress.fillStyle(0x718e64);progress.fillRoundedRect(cx-130,cy,260*value,10,5);};
     this.load.on('progress',showProgress);this.load.once('complete',()=>{this.load.off('progress',showProgress);progress.destroy();loading.destroy();});
+    this.load.image('living',`${import.meta.env.BASE_URL}assets/objects/living-v1.png`);
     this.load.image('quietGrass',`${import.meta.env.BASE_URL}assets/tiles/quiet-grass-v2.png`);
     this.load.image('beachV2',`${import.meta.env.BASE_URL}assets/objects/beach-v2.png`);
     this.load.image('leaders',`${import.meta.env.BASE_URL}assets/characters/faith-leaders-v1.png`);
@@ -88,6 +89,7 @@ export class WorldScene extends Phaser.Scene {
     const capybaras=this.textures.get('capybaras');capybaras.add('mochi',0,10,80,650,1020);capybaras.add('lilito',0,740,350,480,750);capybaras.setFilter(Phaser.Textures.FilterMode.LINEAR);
     this.textures.get('onsen').add('pool',0,40,230,1160,800);
     const furnitureFrames:Record<string,Record<string,number[]>>={
+      living:{tv:[105,180,680,600],sofa:[840,180,910,585]},
       home:{bed:[60,20,500,590],bath:[650,80,580,470],bookcase:[85,650,460,580],workDesk:[635,710,595,480]},
       office:{frontDesk:[20,440,625,610],shower:[685,220,530,850]},
       kitchen:{sink:[10,20,610,580],stove:[710,30,460,560],fridge:[125,630,375,600],diningTable:[630,650,610,580]},
@@ -260,7 +262,7 @@ export class WorldScene extends Phaser.Scene {
       const state=this.npcRuntime.get(npc.id),position=state.position;
       const image=this.add.image(position.x,position.y,npc.texture,npc.frame).setOrigin(.5,1).setDisplaySize(npc.width,npc.height);
       image.setInteractive({useHandCursor:true}).on('pointerdown',()=>{if(!controls.blocked&&state.map===this.mapId&&nearby(this.position,this.npcRuntime.approach(npc.id),65))this.talkNpc(npc.id);});
-      const cue=this.label(0,0,'···','#4d5d49',11).setBackgroundColor('#fff6df').setPadding(4,1);
+      const cue=this.label(0,0,'...','#4d5d49',11).setBackgroundColor('#fff6df').setPadding(4,1);
       const name=this.nameplate(0,0,npc.name);
       const notice=this.label(0,0,'!','#ffe6a1',24).setBackgroundColor('#4c6248').setPadding(7,1);
       const water=this.waterline(0,0,npc.width+4,0x8cbeb3);

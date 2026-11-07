@@ -1,10 +1,11 @@
 import { homeAnchor } from './home';
 import { canStand,move,type MapId,type Point,type WorldMap } from './model';
 import type { BathSlot } from './bathing';
-export type LocalActivity='running'|'fishing'|'playing'|'resting'|'showering';
+export type LocalActivity='running'|'fishing'|'playing'|'resting'|'showering'|'watching';
 export interface ActivityTarget {id:string;map:MapId;name:string;verb:string;activity:LocalActivity;pose:'front'|'back'|'sitFront';approach:Point;exit:Point;foregroundDepth?:number;slots:BathSlot[];route?:Point[]}
 export const trackRoute:Point[]=[{x:740,y:1208},{x:900,y:1225},{x:962,y:1340},{x:900,y:1455},{x:740,y:1472},{x:580,y:1455},{x:518,y:1340},{x:580,y:1225}];
 export const activityTargets:ActivityTarget[]=[
+  {id:'home.reception.tv',map:'cottage',name:'TV sofa',verb:'Sit and watch TV',activity:'watching',pose:'sitFront',approach:{x:650,y:660},exit:{x:650,y:660},foregroundDepth:655,slots:[{id:'home.reception.tv.left',point:{x:625,y:620}},{id:'home.reception.tv.right',point:{x:675,y:620}}]},
   {id:'park.track',map:'garden',name:'running track',verb:'Run the track',activity:'running',pose:'front',approach:{x:740,y:1530},exit:{x:740,y:1530},slots:[{id:'park.track.runner-1',point:trackRoute[4]},{id:'park.track.runner-2',point:trackRoute[0]}],route:trackRoute},
   {id:'park.fishing',map:'garden',name:'fishing spot',verb:'Fish at the lake',activity:'fishing',pose:'back',approach:{x:1200,y:1678},exit:{x:1200,y:1678},foregroundDepth:1700,slots:[{id:'park.fishing.left',point:{x:1168,y:1640}},{id:'park.fishing.right',point:{x:1232,y:1640}}]},
   {id:'park.pickleball',map:'garden',name:'pickleball practice',verb:'Practice pickleball',activity:'playing',pose:'front',approach:{x:150,y:1370},exit:{x:150,y:1455},slots:[{id:'park.pickleball.left',point:{x:150,y:1310}},{id:'park.pickleball.right',point:{x:350,y:1310}}]},
