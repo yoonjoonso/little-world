@@ -167,10 +167,16 @@ export class WorldScene extends Phaser.Scene {
     g.setDepth(-4);
     this.rect(g,0,0,1200,960,0x344d42);
     this.rect(g,154,126,892,730,0x795d49);
-    this.terrain('wood',170,160,860,680).setDepth(-3);
+    this.terrain('wood',170,160,860,680).setTileScale(.6).setDepth(-3);
     for(const room of homeLayout){
       const definition=homeRooms[room.definition];
-      this.terrain(definition.floor,room.x,room.y,definition.width,definition.height).setDepth(-3);
+      if(definition.floor==='ceramic'){
+        const floor=this.add.graphics().setDepth(-3);
+        floor.fillStyle(0xe5dfcc);floor.fillRect(room.x,room.y,definition.width,definition.height);
+        floor.lineStyle(1,0xc9c8b4,.65);
+        for(let x=room.x+54;x<room.x+definition.width;x+=54){floor.lineBetween(x,room.y,x,room.y+definition.height);}
+        for(let y=room.y+54;y<room.y+definition.height;y+=54){floor.lineBetween(room.x,y,room.x+definition.width,y);}
+      }else this.terrain('wood',room.x,room.y,definition.width,definition.height).setTileScale(.6).setDepth(-3);
       const walls=this.add.graphics().setDepth(450);
       for(const wall of definition.walls){
         this.rect(walls,room.x+wall.x,room.y+wall.y,wall.w,wall.h,0xb79a76);
@@ -184,10 +190,9 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     const welcome=this.add.graphics().setDepth(1);
-    welcome.fillStyle(0xc7a6a1);welcome.fillRoundedRect(530,740,140,92,12);
-    this.label(600,783,'Welcome home','#624c40',12);
+    welcome.fillStyle(0xc7a6a1);welcome.fillRoundedRect(544,780,112,55,9);
     this.rect(g,558,832,84,8,0xcbb68b);
-    this.label(600,818,'EXIT','#715c43',12);
+    this.label(600,808,'EXIT','#715c43',12);
     this.label(600,103,'Our home & office','#e6d8b7',17);
   }
   update(_time:number,delta:number) {

@@ -7,13 +7,13 @@ import { updateLocation } from '../world/updateLocations';
 import { maps } from '../world/model';
 import type { GameState } from '../game/bridge';
 export function WorldUpdates({state}:{state:GameState}){
-  const [receipts,setReceipts]=useState(readReceipts),[open,setOpen]=useState(false);
+  const [receipts,setReceipts]=useState(readReceipts);
   useEffect(()=>{const refresh=()=>setReceipts(readReceipts());updateEvents.addEventListener('change',refresh);window.addEventListener('storage',refresh);return()=>{updateEvents.removeEventListener('change',refresh);window.removeEventListener('storage',refresh);};},[]);
   const items=receipts.flatMap(receipt=>receipt.updates).filter(update=>!update.read);
   const targets=[...new Map(items.map(update=>[`${update.target}:${update.targetId}`,update])).values()];
   const map=maps[state.map];
-  return <aside className="minimap" aria-label="Village minimap">
-    <button className="minimap-toggle" onClick={()=>setOpen(!open)} aria-expanded={open} aria-label={`Open minimap${items.length?`, ${items.length} unread updates`:''}`}>
+  return <aside className="minimap" aria-label={`Minimap, ${items.length} unread updates`}>
+    <div className="minimap-toggle">
       <svg viewBox={`0 0 ${map.width} ${map.height}`} role="img" aria-label="Your location, house, planning plots and unread update destinations">
         <rect width={map.width} height={map.height} rx="80" fill="#819e6c"/>
         {state.map==='cottage'?<>{homeLayout.map(room=><rect key={room.id} x={room.x} y={room.y} width={homeRooms[room.definition].width} height={homeRooms[room.definition].height} fill={room.definition==='reception'?'#dbb98e':'#eee0bc'} stroke="#806647" strokeWidth="16"/>)}</>:<>
@@ -26,7 +26,6 @@ export function WorldUpdates({state}:{state:GameState}){
         <circle cx={state.x} cy={state.y} r="37" fill="#fff9e6" stroke="#49684c" strokeWidth="15"/>
         {targets.map(update=>{const target=updateLocation(update);if(!target)return null;const location=target.map===state.map?target:state.map==='garden'?{x:464,y:350}:{x:600,y:818};return <g key={update.id} transform={`translate(${location.x},${location.y})`}><circle r="55" fill="#f8c66b" stroke="#6b4d33" strokeWidth="8"/><text textAnchor="middle" dominantBaseline="central" fontSize="86" fontWeight="bold" fill="#59412f">!</text></g>;})}
       </svg><span>{state.map==='cottage'?'Home map':'Village map'} {items.length>0&&<strong>! {items.length}</strong>}</span>
-    </button>
-    {open&&<section className="minimap-notes"><h3>Explore your village</h3><p>The white dot is you. Walk to an <strong>!</strong> and interact to discover what changed.</p>{items.length===0?<p>No unread changes or NPC replies.</p>:items.map(update=><p key={update.id}><strong>! {updateLocation(update)?.name||update.targetId}</strong><br/>{update.summary}</p>)}<small>Opening this map keeps your notifications unread.</small></section>}
+    </div>
   </aside>;
 }

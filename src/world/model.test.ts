@@ -22,8 +22,17 @@ describe('movement and map routes',()=>{
     }
     expect(portalAt(maps.garden,{x:464,y:350})?.target).toBe('cottage');
     expect(portalAt(maps.cottage,{x:600,y:818})?.target).toBe('garden');
-    expect(canStand(maps.cottage,{x:600,y:838})).toBe(true);
+    expect(canStand(maps.cottage,{x:600,y:832})).toBe(true);
     expect(canStand(maps.cottage,{x:550,y:845})).toBe(false);
+  });
+  it('stops at the exit mat until interaction and rejects saved positions outside the home',()=>{
+    let point={...maps.cottage.spawn};
+    for(let i=0;i<100;i++)point=move(maps.cottage,point,0,1,50);
+    expect(point.y).toBeLessThan(840);expect(portalAt(maps.cottage,point)?.target).toBe('garden');
+    expect(canStand(maps.cottage,{x:600,y:900})).toBe(false);
+    expect(canStand(maps.cottage,{x:100,y:500})).toBe(false);
+    expect(canStand(maps.cottage,{x:1100,y:500})).toBe(false);
+    expect(canStand(maps.cottage,{x:600,y:100})).toBe(false);
   });
   it('keeps every room and both desk approaches reachable from the entrance',()=>{
     const map=maps.cottage;

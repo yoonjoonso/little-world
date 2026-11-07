@@ -7,7 +7,8 @@ export const planningPlots:PlanningPlot[]=[
   {id:'plot.east-medium',name:'Meadow plot',size:'Medium',bounds:{x:1060,y:440,w:240,h:150},approach:{x:1180,y:620}},
   {id:'plot.south-large',name:'South commons plot',size:'Large',bounds:{x:780,y:800,w:360,h:180},approach:{x:960,y:1010}},
 ];
+// Full non-walkable exterior bounds. Exit is an interaction zone inside this enclosure.
 export const homePerimeter:Rect[]=[
-  {x:154,y:126,w:892,h:34},{x:154,y:126,w:16,h:730},{x:1030,y:126,w:16,h:730},
-  {x:154,y:840,w:404,h:16},{x:642,y:840,w:404,h:16},
+  {x:0,y:0,w:1200,h:160},{x:0,y:0,w:170,h:960},{x:1030,y:0,w:170,h:960},
+  {x:0,y:840,w:1200,h:120},
 ];

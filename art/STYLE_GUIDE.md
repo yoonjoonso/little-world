@@ -14,9 +14,9 @@ Existing generated art is an initial pass, not a perfect style reference. The pr
 
 ## Scale and proportions
 
-World units equal screen pixels at native zoom. Typical human: about 48–70 units tall, 24–34 wide. Seated heads should stay at comparable scale, with the torso/legs layered behind furniture rather than the whole person hovering above it. Capybaras are smaller than humans; Lilito is visibly smaller than Mochi.
+World units equal screen pixels at native zoom. Standard adult human target: 64 native screen units tall (about 60–68 acceptable), about 28–32 wide, head about 15–17 units. Keep the same baseline scale across Yoon, Lucia and future adults. The old 44-unit procedural character is a placeholder to replace, not the size reference. Seated heads should stay at comparable scale, with the torso/legs layered behind furniture rather than the whole person hovering above it. Capybaras are smaller than humans; Lilito is visibly smaller than Mochi.
 
-Typical prop boxes: chair 38×48, work desk 146×100, reception desk 154×94, bed 160×180, bath 174×120, shower 90×145. These are gameplay footprint/visual targets, not permission to stretch an arbitrary source image. Generate props with the corresponding aspect ratio, then preserve cropped art proportions when fitting to the box. Crop frames to the visible object plus consistent padding; do not use a full square cell if it contains large empty margins. Keep separate ground collision, seat, approach, facing and waiting anchors.
+Typical prop boxes: chair 38×48, work desk 146×100, reception desk 154×94, bed 160×180, bath 150×104, shower 72×126. These are gameplay footprint/visual targets, not permission to stretch an arbitrary source image. Generate props with the corresponding aspect ratio, then preserve cropped art proportions when fitting to the box. Crop frames to the visible object plus consistent padding; do not use a full square cell if it contains large empty margins. Keep separate ground collision, seat, approach, facing and waiting anchors.
 
 Building exterior art fits roughly 220–280 units wide for a small building. Preserve useful door/approach clearance. Interior room definitions and props are independently reusable and parent-relative. Use about 90–100 units of hallway width where several characters may pass; doors must remain reachable around furniture.
 

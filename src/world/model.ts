@@ -12,7 +12,7 @@ export const maps: Record<MapId, WorldMap> = {
     portals:[{area:{x:445,y:321,w:40,h:47},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
   cottage:{id:'cottage',name:'Our Home & Office',width:1200,height:960,spawn:{x:600,y:770},
     solids:[...homePerimeter,...homeSolids()],
-    portals:[{area:{x:558,y:800,w:84,h:40},target:'garden',spawn:{x:466,y:395},label:'Back to the village'}]},
+    portals:[{area:{x:558,y:800,w:84,h:40},target:'garden',spawn:{x:466,y:395},label:'Exit house'}]},
 };
 export function overlaps(a: Rect,b: Rect) { return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 export function canStand(map: WorldMap, p: Point) {
