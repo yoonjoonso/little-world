@@ -1,4 +1,4 @@
-import { onsen } from '../world/npcs';
+import { onsen } from '../world/bathing';
 import { useEffect,useState } from 'react';
 import { readReceipts,updateEvents } from '../services/worldUpdates';
 import { homeLayout,homeRooms } from '../world/home';

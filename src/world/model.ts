@@ -1,4 +1,4 @@
-import { onsen } from './npcs';
+import { onsen } from './bathing';
 import { homePerimeter, requestBoard } from './planning';
 import { homeSolids } from './home';
 export type MapId = 'garden' | 'cottage';

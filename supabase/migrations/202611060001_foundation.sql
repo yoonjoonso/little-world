@@ -44,7 +44,9 @@ create table public.player_states (
   map_id text not null default 'garden',
   x double precision not null default 480 check (x between 0 and 100000),
   y double precision not null default 458 check (y between 0 and 100000),
-  activity text not null default 'idle' check (activity in ('idle','walking','sitting')),
+  activity text not null default 'idle' check (activity in ('idle','walking','sitting','bathing')),
+  activity_target text,
+  activity_slot text,
   updated_at timestamptz not null default now(),
   primary key(world_id,user_id),
   foreign key(world_id,user_id) references public.world_members(world_id,user_id) on delete cascade
