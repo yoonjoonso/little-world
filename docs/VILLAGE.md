@@ -1,6 +1,6 @@
 # Shared village requirements
 
-Confirmed by Yoon on November 6, 2026. Exact map layouts, room dimensions, and the final art direction still need iteration. Keep the approved Phaser/React/TypeScript/Supabase architecture.
+Confirmed by Yoon on November 6, 2026. Exact map layouts and room dimensions still need iteration. Art direction: Minami Lane-inspired soft illustration, keeping our existing straight-on top-down view rather than a diagonal/isometric angle. Keep the approved Phaser/React/TypeScript/Supabase architecture.
 
 ## Companion indicator
 
@@ -18,7 +18,7 @@ The adjacent dot represents the human player's online/offline presence, not whet
 | Study | Work/study at home | Study desk |
 | Cabin living room | Watching shows together | TV plus two nearby seats |
 | Hospital | Lila's working location | Work station/arrival anchor |
-| Park with pickleball court | Yoon playing pickleball | Court/activity anchor |
+| Park with pickleball court, running track, and fishing lake | Pickleball, running, fishing | Court, track route/loop, lakeside fishing spot |
 | Strip mall | Shopping area with a cinema | Street and shop entrances |
 | Movie theater | Going to the movies | Screening room/seats |
 | Bar | Drinking beer | Bar stool/table |
@@ -69,3 +69,9 @@ No always-running repair agent is connected yet. Persisting an error does not au
 5. Connect Muse builders, generated characters, atomic content replacement, and error/repair workers.
 
 This list establishes product scope; it does not apply live database migrations or claim the future locations are playable now.
+
+## Approved visual direction and world clock
+
+Use original Minami Lane-inspired soft illustrated art: rounded forms, consistent outlines, warm restrained colors, and enough prop detail to feel inhabited. Keep the current straight-on/top-down perspective; do not adopt diagonal isometric streets. The approved reference sets direction, not permission to reuse copyrighted game assets. Existing procedural placeholders are not the final art pass.
+
+Start with two world-lighting states, day and night. Use one shared world timezone, initially America/Los_Angeles, independent of player device timezone; default day is 07:00–18:59 and night is 19:00–06:59. These hours are an implementation default, not a claim about astronomical sunset. The current frontend rechecks every 30 seconds using its date timer. Night applies a cool multiply overlay to the game only; chat, labels in the HUD, and controls stay readable. Indoor and outdoor light art and smooth dawn/dusk transitions can follow later. The displayed calendar date remains device-local for now.
