@@ -134,3 +134,29 @@ See docs/VILLAGE.md for Yoon’s confirmed locations, automatic walking and inte
 ## Day/night lighting
 
 The world now has day/night states with a shared Pacific-time clock: day 7am–7pm, night otherwise. The existing 30-second date timer updates lighting without reloading. Night tints only the game; menus and touch controls remain readable. See docs/VILLAGE.md for the confirmed art direction and expanded park (pickleball, running track, fishing lake).
+
+## Modular world and multiplayer priority (November 7)
+
+Yoon confirms reusable prefabs at object, building, plot, and neighborhood levels. Terrain and floors are editable tile layers inside these groups, not a single flattened background. Children use parent-relative coordinates. Moving a neighborhood moves its ground, roads, buildings, collision geometry, interaction anchors, portals, and NPC spawn points together. World connections must be revalidated after a layout edit.
+
+Prefab definitions and placed instances are separate: instances have stable IDs, definition/version references, transforms, and explicit overrides. Resident assignments reference plot/house IDs independently of appearance. Destinations and saved interactions reference stable anchors rather than baked global coordinates. Neighbor houses can remain unassigned until Yoon names residents. Layout revisions must reconcile saved player positions and occupied objects; a connected player cannot be stranded inside newly moved collision geometry.
+
+Art remains provisional: the generated comparison was too visually similar and too dense. Keep a coherent cozy direction, but review a small modular tileset and a block assembled from it before producing personalized avatars or replacing the world art. The uploaded Yoon photo is a character reference for later, not approval to generate the avatar now. Earlier art-direction notes do not override this pending modular asset review.
+
+Next functional milestone is genuine two-player play, before a full city/art expansion:
+
+1. Finish browser verification of viewport layout, touch movement, interaction, and chat input isolation.
+2. Implement account/session UI and explicit account-to-character mapping, with an honest unconfigured/offline state.
+3. Connect authorized world membership, remote player snapshots and interpolation, online presence, map changes, and reconnect cleanup.
+4. Connect persistent shared messages and semantic activity logs; remote unread messages use the existing collapsed-chat badge.
+5. Verify two independent sessions: both players see each other, chat crosses sessions, map transitions hide/show remote characters correctly, reconnect restores state, and unrelated accounts cannot access the world.
+
+A live Supabase project and browser-safe configuration are required for the online verification. Do not claim multiplayer based only on local mocks or a successful frontend build. Applying the migration still requires confirmation of the target project and approval. No new multiplayer transport or hosting service is needed beyond the agreed Supabase architecture.
+
+## Shared-play implementation in progress
+
+The frontend now contains account sign-in/sign-out, authenticated membership discovery, periodic saved-position writes, saved-position restoration, remote character rendering/interpolation, shared event history, and shared message submission with visible send errors. The first transport uses bounded one-second database refreshes and a 15-second idle checkpoint, not realtime presence. Shared mode requires configuration, existing account memberships, and the foundation schema; it has not been verified against the live project. Saved remote positions are not evidence of current online presence. Seat occupancy and character-name mapping remain pending.
+
+Three mocked integration tests cover missing membership, position restoration/cleanup, and failed sends. All 12 tests pass. Production build passes. Browser QA was attempted but local Chromium aborts because process-singleton socket creation is denied (`Operation not permitted`); browser interaction checks remain incomplete.
+
+Activity routing: authenticated recognized updates use deterministic immediate actions; only tasks requiring interpretation/reasoning wait for a configured agent sweep. See docs/AGENT_INBOX.md. Neither the Muse connection nor a sweep schedule is live.

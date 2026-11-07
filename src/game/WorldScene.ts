@@ -1,8 +1,12 @@
+import type { RemotePlayer } from '../services/sharedWorld';
+import { gameEvents } from './bridge';
 import Phaser from 'phaser';
 import { controls, interact, publish, resetControls, logActivity } from './bridge';
 import { maps, move, nearby, portalAt, type MapId, type Point } from '../world/model';
 
 export class WorldScene extends Phaser.Scene {
+  private remotePlayers:RemotePlayer[]=[];
+  private remoteActors=new Map<string,{actor:Phaser.GameObjects.Container;seated:boolean}>();
   private mapId: MapId='garden';
   private position: Point={...maps.garden.spawn};
   private actor!: Phaser.GameObjects.Container;
@@ -15,6 +19,11 @@ export class WorldScene extends Phaser.Scene {
   create() {
     this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT',false) as Record<string,Phaser.Input.Keyboard.Key>;
     this.paint();
+    const remote=(event:Event)=>{this.remotePlayers=(event as CustomEvent<RemotePlayer[]>).detail;};
+    const restore=(event:Event)=>{const saved=(event as CustomEvent<RemotePlayer>).detail;if(saved.map_id!=='garden'&&saved.map_id!=='cottage')return;if(!Number.isFinite(saved.x)||!Number.isFinite(saved.y))return;this.mapId=saved.map_id;this.seated=saved.activity==='sitting';this.position={x:saved.x,y:saved.y};this.paint();};
+    gameEvents.addEventListener('remote-players',remote);
+    gameEvents.addEventListener('restore-player',restore);
+    this.events.once('shutdown',()=>{gameEvents.removeEventListener('remote-players',remote);gameEvents.removeEventListener('restore-player',restore);});
     this.scale.on(Phaser.Scale.Events.RESIZE,this.resizeWorld,this);
     const blur=()=>{resetControls(); this.input.keyboard?.resetKeys();};
     window.addEventListener('blur',blur);
@@ -52,6 +61,7 @@ export class WorldScene extends Phaser.Scene {
     p.add(g); return p;
   }
   private paint() {
+    this.remoteActors.clear();
     this.children.removeAll(true);
     const g=this.add.graphics();
     if(this.mapId==='garden') this.garden(g); else this.cottage(g);
@@ -119,6 +129,17 @@ export class WorldScene extends Phaser.Scene {
   }
   update(_time:number,delta:number) {
     if(!this.actor) return;
+    const visible=this.remotePlayers.filter(player=>player.map_id===this.mapId&&Number.isFinite(player.x)&&Number.isFinite(player.y));
+    const ids=new Set(visible.map(player=>player.user_id));
+    for(const [id,value] of this.remoteActors){if(!ids.has(id)){value.actor.destroy();this.remoteActors.delete(id);}}
+    for(const player of visible){
+      let value=this.remoteActors.get(player.user_id);
+      const seated=player.activity==='sitting';
+      if(value&&value.seated!==seated){value.actor.destroy();this.remoteActors.delete(player.user_id);value=undefined;}
+      if(!value){value={actor:this.person(player.x,player.y,0x7f98c0,seated),seated};this.remoteActors.set(player.user_id,value);}
+      const blend=1-Math.exp(-Math.min(delta,100)/100);
+      value.actor.x+=(player.x-value.actor.x)*blend;value.actor.y+=(player.y-value.actor.y)*blend;value.actor.setDepth(value.actor.y);
+    }
     let dx=0,dy=0;
     if(!controls.blocked&&!this.seated){dx=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left);dy=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);}
     this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
