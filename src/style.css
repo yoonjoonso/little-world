@@ -11,3 +11,5 @@
 .npc-thread{max-height:32dvh;overflow:auto;overscroll-behavior:contain}.npc-thread p{padding:12px 15px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}.npc-greeting{background:#eeefdf}.npc-outgoing{background:#e1e8d8;margin-left:30px}.npc-outgoing span{font-size:10px;color:#829172}.npc-thinking{font-size:13px!important}.npc-thinking small{display:block;font-size:11px;color:#8b967e}.npc-form button{margin-top:10px}.agent-debug pre{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto}
 
 .presence-dot{display:block;width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#96a092;box-shadow:0 0 0 4px #96a09220}.presence-dot.is-online{background:#65a46b}.presence-dot.is-offline{background:#879082}.place-chip strong{overflow-wrap:anywhere}
+
+.night-overlay{position:absolute;inset:0;pointer-events:none;background:#172544;mix-blend-mode:multiply;opacity:0}.lighting-night .night-overlay{opacity:.52}.day-chip>span{margin-right:3px}

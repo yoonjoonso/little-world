@@ -107,7 +107,7 @@ Chat starts collapsed. A floating chat button expands/collapses the activity pan
 
 On mobile and other coarse-pointer devices, a persistent D-pad and contextual interaction button sit inside the game. Safe-area offsets keep controls away from device edges. Pointer cancellation, capture loss, tab blur, and hidden-page transitions release held directions. Chat has its own scrolling area; the page itself does not scroll. These are first-class mobile controls, not a requirement to use a physical keyboard.
 
-Art direction remains unconfirmed. Compare three more detailed directions using the same cottage/garden scene: detailed cozy pixel art, hand-painted 2D storybook art, and pre-rendered miniature/diorama sprites. Keep the existing placeholder artwork until Yoon selects a direction. Direction images are concept previews, not assets automatically installed into the game. Do not add unconfirmed city buildings as part of the art comparison.
+Art direction is confirmed: original soft illustrated art inspired by Minami Lane, retaining our straight-on/top-down perspective rather than diagonal isometric framing. See docs/VILLAGE.md. Current procedural art remains placeholder content until the art pass.
 
 ## Rendering, sprint, and message separation
 
@@ -130,3 +130,7 @@ The camera now uses native 1x world scale rather than enlarging the map to cover
 The upper-left panel keeps “our little world” and the current date, with the other player’s location/activity directly beneath the title and a presence dot beside it. For Yoon this will show Lila; for Lila it will show Yoon after account mapping exists. The current single-player preview says “Lila · not connected” with an unknown gray dot. Do not fabricate offline/online state or location from the local player’s state. Own location remains in Help.
 
 See docs/VILLAGE.md for Yoon’s confirmed locations, automatic walking and interactions, Muse construction avatar behavior, character/content generation, and operational error inbox. These are product requirements, not a claim that multiplayer, workers, generated assets, or Supabase are already running.
+
+## Day/night lighting
+
+The world now has day/night states with a shared Pacific-time clock: day 7am–7pm, night otherwise. The existing 30-second date timer updates lighting without reloading. Night tints only the game; menus and touch controls remain readable. See docs/VILLAGE.md for the confirmed art direction and expanded park (pickleball, running track, fishing lake).
