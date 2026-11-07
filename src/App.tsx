@@ -1,3 +1,4 @@
+import { villageBuildings } from './world/buildings';
 import { worldNpcs } from './world/npcs';
 import { WorldUpdates } from './components/WorldUpdates';
 import { acknowledgeUpdates, setUpdateViewer,readReceipts } from './services/worldUpdates';
@@ -38,6 +39,8 @@ export function App(){
   const [sprint,setSprint]=useState(false);
   useEffect(()=>{const timer=window.setInterval(()=>setToday(new Date()),30_000);return()=>window.clearInterval(timer);},[]);
   const [selectedNpc,setSelectedNpc]=useState(worldNpcs[0]);
+  const [selectedBuilding,setSelectedBuilding]=useState(villageBuildings[0]);
+  const [requestTarget,setRequestTarget]=useState<string|undefined>();
   const [updateTarget,setUpdateTarget]=useState('');
   const [modal,setModal]=useState<Interaction>(null);
   const [chatOpen,setChatOpen]=useState(false);
@@ -46,14 +49,16 @@ export function App(){
   const worldRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{
     const onState=(e:Event)=>setState((e as CustomEvent<GameState>).detail);
-    const onInteract=(e:Event)=>{const kind=(e as CustomEvent<Interaction>).detail;setModal(kind);};
+    const onInteract=(e:Event)=>{const kind=(e as CustomEvent<Interaction>).detail;if(kind==='construction')setRequestTarget(undefined);setModal(kind);};
     const onInspect=(event:Event)=>{const id=(event as CustomEvent<string>).detail;setUpdateTarget(id);acknowledgeUpdates('world',id);setModal('updates');};
     const onTalk=(event:Event)=>{const npc=worldNpcs.find(npc=>npc.id===(event as CustomEvent<string>).detail);if(npc){setSelectedNpc(npc);acknowledgeUpdates('npc',npc.id);setModal('npc');}};
+    const onBuilding=(event:Event)=>{const building=villageBuildings.find(building=>building.id===(event as CustomEvent<string>).detail);if(building){setSelectedBuilding(building);setModal('closed');}};
+    gameEvents.addEventListener('inspect-building',onBuilding);
     gameEvents.addEventListener('talk-npc',onTalk);
     gameEvents.addEventListener('inspect-update',onInspect);
     gameEvents.addEventListener('state',onState);gameEvents.addEventListener('interact',onInteract);
     const game=new Phaser.Game({type:Phaser.AUTO,parent:host.current!,width:960,height:640,backgroundColor:'#90ac72',pixelArt:true,roundPixels:true,scale:{mode:Phaser.Scale.RESIZE},scene:[WorldScene],input:{keyboard:true},audio:{noAudio:true}});
-    return()=>{gameEvents.removeEventListener('talk-npc',onTalk);gameEvents.removeEventListener('inspect-update',onInspect);gameEvents.removeEventListener('state',onState);gameEvents.removeEventListener('interact',onInteract);game.destroy(true);};
+    return()=>{gameEvents.removeEventListener('inspect-building',onBuilding);gameEvents.removeEventListener('talk-npc',onTalk);gameEvents.removeEventListener('inspect-update',onInspect);gameEvents.removeEventListener('state',onState);gameEvents.removeEventListener('interact',onInteract);game.destroy(true);};
   },[]);
   useEffect(()=>{controls.blocked=modal!==null||chatOpen||helpOpen;resetControls();setSprint(false);if(modal)closeRef.current?.focus();return()=>{controls.blocked=false;};},[modal,chatOpen,helpOpen]);
   function close(){setModal(null);worldRef.current?.focus();}
@@ -71,7 +76,7 @@ export function App(){
     <ActivityPanel key={session?.user.id||"offline"} shared={session?shared:null} ownId={session?.user.id} sendShared={async body=>{if(!connection.current)throw new Error("Not connected");await connection.current.send("message",body);}} open={chatOpen} onToggle={()=>{setChatOpen(v=>!v);resetControls();}} onClose={()=>{setChatOpen(false);worldRef.current?.focus();}}/>
     <div className="desktop-hint"><kbd>W A S D</kbd> move <span>·</span> <kbd>Shift</kbd> sprint <span>·</span> <kbd>Space</kbd> interact</div>
     {modal&&<div className="modal-backdrop" onKeyDown={e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const elements=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input,textarea'));const first=elements[0],last=elements.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}}}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><button ref={closeRef} className="close" onClick={close} aria-label="Close dialog">×</button>
-      {modal==='updates'?<><p className="eyebrow">DISCOVERED</p><h2 id="dialog-title">What changed here</h2>{readReceipts().flatMap(receipt=>receipt.updates).filter(update=>update.target==='world'&&update.targetId===updateTarget).map(update=><p key={update.id}>{update.summary}</p>)}</>:modal==='npc'?<><p className="eyebrow">SAY HELLO</p><h2 id="dialog-title">{selectedNpc.name} <span>· {selectedNpc.role}</span></h2><NpcConversation key={selectedNpc.id} npc={selectedNpc}/></>:<><p className="eyebrow">UNDER CONSTRUCTION</p><h2 id="dialog-title">Our request board</h2><BuildRequests initialPlotId={state.plotId}/></>}
+      {modal==='closed'?<><p className="eyebrow">COMING SOON · LOCKED</p><h2 id="dialog-title">{selectedBuilding.name}</h2><p>{selectedBuilding.interiorPlan}</p><p>The exterior is here; this interior is not open yet.</p><button className="primary" onClick={()=>{setRequestTarget(selectedBuilding.id);setModal('construction');}}>Request an update here</button></>:modal==='updates'?<><p className="eyebrow">DISCOVERED</p><h2 id="dialog-title">What changed here</h2>{readReceipts().flatMap(receipt=>receipt.updates).filter(update=>update.target==='world'&&update.targetId===updateTarget).map(update=><p key={update.id}>{update.summary}</p>)}</>:modal==='npc'?<><p className="eyebrow">SAY HELLO</p><h2 id="dialog-title">{selectedNpc.name} <span>· {selectedNpc.role}</span></h2><NpcConversation key={selectedNpc.id} npc={selectedNpc}/></>:<><p className="eyebrow">UNDER CONSTRUCTION</p><h2 id="dialog-title">Our request board</h2><BuildRequests initialPlotId={state.plotId} initialTargetId={requestTarget}/></>}
     </section></div>}
   </div>;
 }

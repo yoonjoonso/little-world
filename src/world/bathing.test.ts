@@ -15,6 +15,6 @@ describe('reusable bathing profiles',()=>{
     const first=freeBathSlot(onsen,occupied)!;expect(first.reservedFor).toBeUndefined();occupied.add(first.id);
     const second=freeBathSlot(onsen,occupied)!;expect(second.id).not.toBe(first.id);occupied.add(second.id);
     expect(freeBathSlot(onsen,occupied)).toBeUndefined();
-    const bath=bathingTargets[1];expect(freeBathSlot(bath,new Set([bath.slots[0].id]))).toBeUndefined();
+    const bath=bathingTargets.find(target=>target.id==='home.bathroom.bath')!;expect(freeBathSlot(bath,new Set([bath.slots[0].id]))).toBeUndefined();
   });
 });

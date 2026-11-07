@@ -1,3 +1,5 @@
+import { villageBuildings,buildingSolid } from './buildings';
+import { waterSolids } from './park';
 import { onsen } from './bathing';
 import { homePerimeter, requestBoard } from './planning';
 import { homeSolids } from './home';
@@ -7,8 +9,8 @@ export interface Rect extends Point { w: number; h: number }
 export interface Portal { area: Rect; target: MapId; spawn: Point; label: string }
 export interface WorldMap { id: MapId; name: string; width: number; height: number; spawn: Point; solids: Rect[]; portals: Portal[] }
 export const maps: Record<MapId, WorldMap> = {
-  garden:{id:'garden',name:'Village Commons',width:1440,height:1120,spawn:{x:466,y:430},
-    solids:[{x:342,y:160,w:244,h:168},requestBoard.solid,onsen.solid],
+  garden:{id:'garden',name:'Village Commons',width:2560,height:2080,spawn:{x:466,y:430},
+    solids:[{x:342,y:160,w:244,h:168},requestBoard.solid,onsen.solid,...villageBuildings.map(buildingSolid),...waterSolids],
     portals:[{area:{x:445,y:321,w:40,h:47},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
   cottage:{id:'cottage',name:'Our Home & Office',width:1200,height:960,spawn:{x:600,y:770},
     solids:[...homePerimeter,...homeSolids()],

@@ -1,3 +1,4 @@
+import { villageBuildings,buildingApproach } from './buildings';
 import { worldNpcs } from './npcs';
 import { describe,expect,it } from 'vitest';
 import { homeLayout, homeRooms, lucia, studyDesk, homeAnchor } from './home';
@@ -60,6 +61,13 @@ it('keeps planning plots empty and their request anchors walkable',()=>{
 });
 it('keeps every NPC interaction approach outside solid scenery',()=>{
   for(const npc of worldNpcs)expect(canStand(maps[npc.map],npc.approach()),npc.id).toBe(true);
+});
+it('keeps each coming-soon door reachable and blocks its unopened interior',()=>{
+  for(const building of villageBuildings){
+    expect(canStand(maps.garden,buildingApproach(building)),building.id).toBe(true);
+    expect(canStand(maps.garden,{x:building.position.x,y:building.position.y+20}),building.id).toBe(false);
+    expect(building.status).toBe('coming-soon');
+  }
 });
 describe('idea drafts',()=>{
   it('rejects empty and oversized proposals before saving',()=>{

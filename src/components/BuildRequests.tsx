@@ -1,14 +1,15 @@
-import { targetsForKind } from '../world/editableTargets';
+import { targetsForKind,editableTargets } from '../world/editableTargets';
 import { planningPlots } from '../world/planning';
 import { useEffect,useState } from 'react';
 import { listRequests,makeRequest,saveRequest,type BuildRequest,type RequestKind } from '../services/buildRequests';
 function Reference({file}:{file:File}){const [url,setUrl]=useState('');useEffect(()=>{const value=URL.createObjectURL(file);setUrl(value);return()=>URL.revokeObjectURL(value);},[file]);return <img src={url} alt={`Reference: ${file.name}`} style={{width:76,height:76,objectFit:'cover',borderRadius:8}}/>;}
-export function BuildRequests({initialPlotId}:{initialPlotId?:string}){
-  const [operation,setOperation]=useState<'create'|'update'>('create');
-  const [targetId,setTargetId]=useState('');
+export function BuildRequests({initialPlotId,initialTargetId}:{initialPlotId?:string;initialTargetId?:string}){
+  const initialTarget=editableTargets.find(target=>target.id===initialTargetId);
+  const [operation,setOperation]=useState<'create'|'update'>(initialTarget?'update':'create');
+  const [targetId,setTargetId]=useState(initialTarget?.id||'');
   const initialPlot=planningPlots.find(plot=>plot.id===initialPlotId);
   const [plotId,setPlotId]=useState(initialPlot?.id||'');
-  const [kind,setKind]=useState<RequestKind>('building');const [title,setTitle]=useState('');const [description,setDescription]=useState('');const [location,setLocation]=useState(initialPlot?.name||'Village commons');const [references,setReferences]=useState<File[]>([]);const [items,setItems]=useState<BuildRequest[]>([]);const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [saved,setSaved]=useState(false);const [fileKey,setFileKey]=useState(0);
+  const [kind,setKind]=useState<RequestKind>(initialTarget?.kind||'building');const [title,setTitle]=useState(initialTarget?`${initialTarget.name} update`:'');const [description,setDescription]=useState('');const [location,setLocation]=useState(initialTarget?.name||initialPlot?.name||'Village commons');const [references,setReferences]=useState<File[]>([]);const [items,setItems]=useState<BuildRequest[]>([]);const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [saved,setSaved]=useState(false);const [fileKey,setFileKey]=useState(0);
   useEffect(()=>{let active=true;listRequests().then(values=>{if(active)setItems(values);}).catch(()=>{if(active)setError('This browser could not open saved requests.');});return()=>{active=false;};},[]);
   return <><p>Plan a building, object, neighbor, or map change. Add the details and references you want us to work from. Choose Create or Update existing. You can queue multiple requests here; character updates can include your own reference photos.</p><form onSubmit={async event=>{event.preventDefault();if(busy)return;setBusy(true);setError('');setSaved(false);try{const value=makeRequest({kind,title,description,location,references,plotId:plotId||undefined,operation,targetId:targetId||undefined});await saveRequest(value);setItems(old=>[value,...old]);setTitle('');setDescription('');setReferences([]);setFileKey(n=>n+1);setSaved(true);}catch(error){setError(error instanceof Error?error.message:'Could not save the request.');}finally{setBusy(false);}}}>
   <label>Create or update<select value={operation} onChange={e=>{setOperation(e.target.value as 'create'|'update');setTargetId('');}}><option value="create">Create something new</option><option value="update">Update existing</option></select></label>
