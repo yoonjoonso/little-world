@@ -2,12 +2,14 @@ import type { Point, Rect } from './model';
 
 export interface PropDefinition {
   frame: string;
-  atlas: 'cozy' | 'home' | 'office' | 'kitchen';
+  atlas: 'cozy' | 'home' | 'office' | 'kitchen' | 'living';
   width: number;
   height: number;
   solid?: Rect;
 }
 export const homeProps: Record<string, PropDefinition> = {
+  sofa: {atlas:'living',frame:'sofa',width:160,height:102,solid:{x:-80,y:-38,w:160,h:60}},
+  tv: {atlas:'living',frame:'tv',width:130,height:114,solid:{x:-65,y:-20,w:130,h:40}},
   bed: { atlas:'home', frame:'bed', width:160, height:180, solid:{x:-80,y:-90,w:160,h:180} },
   bath: { atlas:'home', frame:'bath', width:150, height:104, solid:{x:-75,y:-52,w:150,h:104} },
   bookcase: { atlas:'home', frame:'bookcase', width:100, height:110, solid:{x:-50,y:-35,w:100,h:70} },
@@ -40,7 +42,7 @@ export const homeRooms: Record<string,RoomDefinition> = {
   kitchen: {name:'Kitchen',width:300,height:300,floor:'ceramic',walls:[{x:292,y:0,w:12,h:150},{x:292,y:235,w:12,h:65}],
     props:[{id:'sink',definition:'sink',x:65,y:80},{id:'stove',definition:'stove',x:155,y:80},{id:'fridge',definition:'fridge',x:245,y:70},{id:'table',definition:'diningTable',x:130,y:220}]},
   reception: {name:'Reception',width:860,height:300,floor:'wood',walls:[],
-    props:[{id:'secretary-desk',definition:'secretaryDesk',x:650,y:170},{id:'secretary-chair',definition:'chair',x:650,y:126},{id:'plant',definition:'plant',x:770,y:220}]},
+    props:[{id:'sofa',definition:'sofa',x:480,y:60},{id:'tv',definition:'tv',x:480,y:170},{id:'secretary-desk',definition:'secretaryDesk',x:650,y:170},{id:'secretary-chair',definition:'chair',x:650,y:126},{id:'plant',definition:'plant',x:770,y:220}]},
 };
 export const homeLayout = [
   {id:'home.bedroom',definition:'bedroom',x:170,y:160},
