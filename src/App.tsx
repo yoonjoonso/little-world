@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
+import { NpcConversation } from './components/NpcConversation';
 import { ActivityPanel } from './components/ActivityPanel';
 import { WorldScene } from './game/WorldScene';
 import { controls, gameEvents, resetControls, type GameState, type Interaction } from './game/bridge';
 import { makeDraft, maps, type BuildDraft } from './world/model';
 
 const initial: GameState={map:'garden',prompt:'',interaction:null,x:480,y:458};
-const replies:Record<string,string>={
-  hello:'You found us! There’s tea in the cottage and a whole garden to explore. It’s a small start, but we can make it ours.',
-  cottage:'Follow the sandy path to the cottage door. Press E when you’re close, or use the Interact button. The same works for coming back outside.',
-  ideas:'See the fenced plot to the northeast? That’s our idea board. We can collect plans there before anything gets built. A greenhouse? A little bakery? Your call.'
-};
 function readDrafts():BuildDraft[] {try{const value=JSON.parse(localStorage.getItem('little-world:drafts')||'[]');return Array.isArray(value)?value.filter(d=>d&&typeof d.title==='string'&&typeof d.description==='string'&&d.status==='draft').slice(0,20):[];}catch{return [];}}
 export function App(){
   const host=useRef<HTMLDivElement>(null);
@@ -19,7 +15,6 @@ export function App(){
   const [sprint,setSprint]=useState(false);
   useEffect(()=>{const timer=window.setInterval(()=>setToday(new Date()),30_000);return()=>window.clearInterval(timer);},[]);
   const [modal,setModal]=useState<Interaction>(null);
-  const [reply,setReply]=useState('hello');
   const [drafts,setDrafts]=useState<BuildDraft[]>(readDrafts);
   const [title,setTitle]=useState('');const [description,setDescription]=useState('');const [error,setError]=useState('');
   const [saved,setSaved]=useState(false);
@@ -29,7 +24,7 @@ export function App(){
   const worldRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{
     const onState=(e:Event)=>setState((e as CustomEvent<GameState>).detail);
-    const onInteract=(e:Event)=>{setModal((e as CustomEvent<Interaction>).detail);setReply('hello');setSaved(false);};
+    const onInteract=(e:Event)=>{setModal((e as CustomEvent<Interaction>).detail);setSaved(false);};
     gameEvents.addEventListener('state',onState);gameEvents.addEventListener('interact',onInteract);
     const game=new Phaser.Game({type:Phaser.AUTO,parent:host.current!,width:960,height:640,backgroundColor:'#90ac72',pixelArt:true,roundPixels:true,scale:{mode:Phaser.Scale.RESIZE},scene:[WorldScene],input:{keyboard:true},audio:{noAudio:true}});
     return()=>{gameEvents.removeEventListener('state',onState);gameEvents.removeEventListener('interact',onInteract);game.destroy(true);};
@@ -49,7 +44,7 @@ export function App(){
     <ActivityPanel open={chatOpen} onToggle={()=>{setChatOpen(v=>!v);resetControls();}} onClose={()=>{setChatOpen(false);worldRef.current?.focus();}}/>
     <div className="desktop-hint"><kbd>W A S D</kbd> move <span>·</span> <kbd>Shift</kbd> sprint <span>·</span> <kbd>Space</kbd> interact</div>
     {modal&&<div className="modal-backdrop" onKeyDown={e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const elements=Array.from(e.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input,textarea'));const first=elements[0],last=elements.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}}}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><button ref={closeRef} className="close" onClick={close} aria-label="Close dialog">×</button>
-      {modal==='npc'?<><p className="eyebrow">A FRIENDLY FACE</p><h2 id="dialog-title">Milo <span>· your neighbor</span></h2><p className="dialogue">{replies[reply]}</p><div className="choices"><button onClick={()=>setReply('cottage')}>How do I get inside?</button><button onClick={()=>setReply('ideas')}>What can we build?</button><button className="primary" onClick={close}>See you around!</button></div><small className="honest-note">Scripted dialogue in this prototype. AI conversations come later.</small></>:<><p className="eyebrow">UNDER CONSTRUCTION</p><h2 id="dialog-title">Our idea board</h2><p>A place for possibilities. Save a draft before we build it.</p><form onSubmit={e=>{e.preventDefault();save();}}><label>What shall we call it?<input value={title} maxLength={60} onChange={e=>setTitle(e.target.value)} placeholder="A tiny greenhouse…" required/></label><label>Tell us a little more<textarea value={description} maxLength={1000} onChange={e=>setDescription(e.target.value)} placeholder="A sunny corner for growing herbs and sharing tea." rows={3}/></label><button className="primary" type="submit" disabled={drafts.length>=20}>Save idea</button></form>{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Idea saved on this device.</p>}<div className="drafts">{drafts.slice(0,5).map(d=><article key={d.id}><span>DRAFT</span><h3>{d.title}</h3><p>{d.description}</p></article>)}</div><small className="honest-note">Drafts stay in this browser. Saving an idea doesn’t build it. AI generation and shared drafts come later.</small></>}
+      {modal==='npc'?<><p className="eyebrow">A FRIENDLY FACE</p><h2 id="dialog-title">Milo <span>· your neighbor</span></h2><NpcConversation/></>:<><p className="eyebrow">UNDER CONSTRUCTION</p><h2 id="dialog-title">Our idea board</h2><p>A place for possibilities. Save a draft before we build it.</p><form onSubmit={e=>{e.preventDefault();save();}}><label>What shall we call it?<input value={title} maxLength={60} onChange={e=>setTitle(e.target.value)} placeholder="A tiny greenhouse…" required/></label><label>Tell us a little more<textarea value={description} maxLength={1000} onChange={e=>setDescription(e.target.value)} placeholder="A sunny corner for growing herbs and sharing tea." rows={3}/></label><button className="primary" type="submit" disabled={drafts.length>=20}>Save idea</button></form>{error&&<p role="alert">{error}</p>}{saved&&<p role="status">Idea saved on this device.</p>}<div className="drafts">{drafts.slice(0,5).map(d=><article key={d.id}><span>DRAFT</span><h3>{d.title}</h3><p>{d.description}</p></article>)}</div><small className="honest-note">Drafts stay in this browser. Saving an idea doesn’t build it. AI generation and shared drafts come later.</small></>}
     </section></div>}
   </div>;
 }
