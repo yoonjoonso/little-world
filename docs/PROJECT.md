@@ -7,7 +7,7 @@ Owners: Yoon owns engine/code decisions; Yoon and Lila shape the world and conte
 
 A persistent, shared browser-based 2D city for Yoon and Lila. Both characters inhabit the same world. Either player can manually walk, visit buildings, interact with objects, and talk. The other player sees their actions. The world can also reflect real-life routines: when an explicitly authorized agent sends a scheduled gym activity, the character travels to the gym and the other player can see it.
 
-The city and buildings are not yet finalized. The garden and cottage are disposable starter content, not confirmed city designs. Ask Yoon to confirm each additional building before implementing it.
+The village grows from the confirmed location list in docs/VILLAGE.md. Exact layouts and the final art direction remain unconfirmed. The current garden/cottage are starter content. Ask Yoon before adding locations outside the confirmed list.
 
 ## Confirmed stack and responsibilities
 
@@ -28,16 +28,16 @@ Keep one application with separate game, world, component, and service modules. 
 - [x] Garden and one enterable cottage, with an exit back to the garden.
 - [x] Desk highlight, contextual interaction prompt, sitting pose, and stand/cancel action.
 - [x] E / Space and a mobile Interact button share the same interaction action.
-- [x] A scripted conversational NPC with reply choices.
+- [x] A local persistent NPC conversation inbox that accepts follow-up messages while awaiting an agent connection.
 - [x] An under-construction board that saves local idea drafts, without building them automatically.
 - [x] Collapsible in-game activity overlay with Messages and Logs tabs; a badge counts unread messages while collapsed.
 - [x] Local messages and semantic logs for map transitions and sitting/standing.
 - [ ] Live, authenticated two-player sync. Current UI explicitly says offline and local.
 - [ ] Browser verification complete. The initial deployed game was visually checked; reliable keyboard/touch interaction QA and the new layout's browser QA remain pending. The session browser cannot reach the local preview server.
 
-Validation: `npm test` passed 6 tests; `npm run build` passed TypeScript and the production bundle. Phaser produces a bundle-size advisory. Database migration has not been applied or integration-tested.
+Validation: `npm test` passed 7 tests; `npm run build` passed TypeScript and the production bundle. Phaser produces a bundle-size advisory. Database migration has not been applied or integration-tested.
 
-Sitting currently uses a procedural seated pose, with a simple idle movement. It is not finished custom character animation. Prototype progress and chat are session-local; idea drafts alone persist in localStorage on that browser. Do not call local messages shared or multiplayer.
+Sitting currently uses a procedural seated pose, with a simple idle movement. It is not finished custom character animation. Prototype movement and player chat are session-local; idea drafts and the local NPC inbox persist in localStorage on that browser. Do not call local messages shared or multiplayer.
 
 ## Input and interactions
 
@@ -111,7 +111,7 @@ Art direction remains unconfirmed. Compare three more detailed directions using 
 
 ## Rendering, sprint, and message separation
 
-Use integer camera zoom and nearest-neighbor display to avoid blurred fractional enlargement. The camera follows the player and can show less terrain at higher zoom. The HUD shows the viewer’s current local calendar date and refreshes while open. Shift runs at 1.8 times walking speed; mobile has a Run toggle alongside the existing D-pad and Interact button.
+Use native 1x camera zoom and nearest-neighbor display rather than magnifying the map to cover the viewport. The camera follows the player on small screens. The HUD shows the viewer’s current local calendar date and refreshes while open. Shift runs at 1.8 times walking speed; mobile has a Run toggle alongside the existing D-pad and Interact button.
 
 Messages is the default chat tab; Logs is separate and All is removed. Logs never produce unread notifications. Current messages are local only.
 
@@ -124,3 +124,9 @@ Yoon confirms asynchronous NPC conversations: players can append messages while 
 The current frontend implements a browser-local persistent Milo inbox and allows further messages while awaiting connection. It explicitly labels the missing worker and offers a local JSON debug view when opened with `#agent-debug` and talking to Milo. This is neither a shared backend nor an agent API. No fake AI answers are generated. Read the proposed integration contract in `docs/AGENT_INBOX.md` before backend implementation.
 
 The camera now uses native 1x world scale rather than enlarging the map to cover the viewport; on larger displays more of the map and surrounding background are visible. World labels render at 2x texture resolution. The game uses procedural graphics and Phaser text, not generated images with baked-in text.
+
+## Companion status and village scope
+
+The upper-left panel keeps “our little world” and the current date, with the other player’s location/activity directly beneath the title and a presence dot beside it. For Yoon this will show Lila; for Lila it will show Yoon after account mapping exists. The current single-player preview says “Lila · not connected” with an unknown gray dot. Do not fabricate offline/online state or location from the local player’s state. Own location remains in Help.
+
+See docs/VILLAGE.md for Yoon’s confirmed locations, automatic walking and interactions, Muse construction avatar behavior, character/content generation, and operational error inbox. These are product requirements, not a claim that multiplayer, workers, generated assets, or Supabase are already running.
