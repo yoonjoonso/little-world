@@ -87,3 +87,9 @@ Start with two world-lighting states, day and night. Use one shared world timezo
 - Default windows: Lucia reception 8–12 and 13–18, possible lunch outing at noon; Mochi morning outing around 10; Lilito afternoon around 15; Cait around 14, Samir around 13, Eli around 15, Harjit around 12. Each outing lasts around 45 world minutes with ±10-minute daily departure variation, on selected days. Otherwise they remain at their usual area. These are proposed defaults, not a live shared scheduler.
 
 These content additions and the activity runner are queued, not built merely by recording them. Existing procedural player art still needs a coherent character art pass. The latest visual direction uses compact enterable exteriors and larger modular interiors, with a wider hallway. Every actual door is enterable or visibly blocked; NPC names use a shared small backed nameplate and say only their name.
+
+## Strip mall and phased entrances
+
+Confirmed storefronts: movie theater, Taco Bell, Golden Dragon (generic Chinese restaurant), Little Caesars, Pollo Campero, Carl's Jr., and Starbucks. Northgate Groceries is the Mexican/Northgate-inspired supermarket. All new storefronts/buildings whose interiors are unfinished use the same closed entrance art with lock/Coming soon indicator. No door interaction should silently fail. Already playable interiors, such as home, retain functional entrances. Religious leaders belong to their institution interiors once built; the gurdwara includes separate worship/langar spaces. New content is published in small usable increments for Yoon's review.
+
+Reusable visual generation contract: art/STYLE_GUIDE.md. It fixes the illustrated camera, light direction, aspect/pivot conventions and scene-scale review requirements.

@@ -1,3 +1,4 @@
+import { onsen } from '../world/npcs';
 import { useEffect,useState } from 'react';
 import { readReceipts,updateEvents } from '../services/worldUpdates';
 import { homeLayout,homeRooms } from '../world/home';
@@ -19,6 +20,7 @@ export function WorldUpdates({state}:{state:GameState}){
           <path d="M466 360V1090M300 695H1270M1150 240V695M960 695V1025" fill="none" stroke="#dbc59c" strokeWidth="35"/>
           <rect x="342" y="160" width="244" height="168" fill="#d1a277" stroke="#806647" strokeWidth="12"/>
           {planningPlots.map(plot=><rect key={plot.id} x={plot.bounds.x} y={plot.bounds.y} width={plot.bounds.w} height={plot.bounds.h} fill="#bdd09a" stroke="#f4e5bd" strokeDasharray="20 15" strokeWidth="12"/>)}
+          <ellipse cx={onsen.x} cy={onsen.y} rx="170" ry="105" fill="#9dc7bf" stroke="#c7b89a" strokeWidth="15"/>
           <rect x={requestBoard.x-25} y={requestBoard.y-25} width="50" height="50" fill="#86603f"/>
         </>}
         <circle cx={state.x} cy={state.y} r="37" fill="#fff9e6" stroke="#49684c" strokeWidth="15"/>

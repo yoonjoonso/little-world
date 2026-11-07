@@ -1,6 +1,7 @@
+import { onsen,worldNpcs } from '../world/npcs';
 import { updateLocation } from '../world/updateLocations';
 import { planningPlots, requestBoard } from '../world/planning';
-import { homeLayout, homeRooms, homeProps, studyDesk, lucia } from '../world/home';
+import { homeLayout, homeRooms, homeProps, studyDesk } from '../world/home';
 import { unreadUpdates,updateEvents } from '../services/worldUpdates';
 import type { RemotePlayer } from '../services/sharedWorld';
 import { gameEvents } from './bridge';
@@ -12,9 +13,9 @@ export class WorldScene extends Phaser.Scene {
   private remotePlayers:RemotePlayer[]=[];
   private remoteActors=new Map<string,{actor:Phaser.GameObjects.Container;seated:boolean}>();
   private worldNotices:Phaser.GameObjects.Text[]=[];
-  private npcNotice?:Phaser.GameObjects.Text;
+  private npcNotices=new Map<string,Phaser.GameObjects.Text>();
   private refreshNotice=()=>{
-    this.npcNotice?.setVisible(unreadUpdates().some(u=>u.target==='npc'&&u.targetId===lucia.id));
+    for(const [id,notice] of this.npcNotices)notice.setVisible(unreadUpdates().some(update=>update.target==='npc'&&update.targetId===id));
     for(const marker of this.worldNotices)marker.destroy();this.worldNotices=[];
     const updates=[...new Map(unreadUpdates().filter(u=>u.target==='world').map(u=>[u.targetId,u])).values()];
     for(const update of updates){const location=updateLocation(update);if(location&&location.map===this.mapId)this.worldNotices.push(this.label(location.x,location.y-45,'!','#ffe6a1',24).setBackgroundColor('#4c6248').setPadding(7,1));}
@@ -29,6 +30,8 @@ export class WorldScene extends Phaser.Scene {
   private highlight!: Phaser.GameObjects.Graphics;
   constructor() { super('world'); }
   preload() {
+    this.load.image('capybaras',`${import.meta.env.BASE_URL}assets/characters/capybaras-v1.png`);
+    this.load.image('onsen',`${import.meta.env.BASE_URL}assets/objects/onsen-v1.png`);
     this.load.image('requestBoard',`${import.meta.env.BASE_URL}assets/objects/request-board-v1.png`);
     this.load.image('cozy',`${import.meta.env.BASE_URL}assets/world/cozy-atlas-v1.png`);
     this.load.image('lucia',`${import.meta.env.BASE_URL}assets/characters/lucia-v1.png`);
@@ -45,6 +48,8 @@ export class WorldScene extends Phaser.Scene {
     character.add('standing',0,140,75,390,1090);
     character.add('seated',0,750,155,335,1010);
     character.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    const capybaras=this.textures.get('capybaras');capybaras.add('mochi',0,10,80,650,1020);capybaras.add('lilito',0,740,350,480,750);capybaras.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    this.textures.get('onsen').add('pool',0,40,230,1160,800);
     const furnitureFrames:Record<string,Record<string,number[]>>={
       home:{bed:[60,20,500,590],bath:[650,80,580,470],bookcase:[85,650,460,580],workDesk:[635,710,595,480]},
       office:{frontDesk:[20,440,625,610],shower:[685,220,530,850]},
@@ -101,12 +106,13 @@ export class WorldScene extends Phaser.Scene {
     p.add(g); return p;
   }
   private paint() {
-    this.npcNotice=undefined;
+    this.npcNotices.clear();
     this.worldNotices=[];
     this.remoteActors.clear();
     this.children.removeAll(true);
     const g=this.add.graphics();
     if(this.mapId==='garden')this.garden(g);else this.cottage(g);
+    this.paintNpcs();
     this.actor=this.person(this.position.x,this.position.y,0xd78b62,this.seated);
     this.highlight=this.add.graphics().setDepth(900);
     this.lastState='';
@@ -139,7 +145,22 @@ export class WorldScene extends Phaser.Scene {
     this.add.image(requestBoard.x,requestBoard.y,'requestBoard').setDisplaySize(190,190).setDepth(945);
     this.label(requestBoard.x,requestBoard.y-118,'✦ REQUEST BOARD ✦','#34533d',16).setBackgroundColor('#fff1cc').setPadding(10,6);
     this.label(requestBoard.x,requestBoard.y+108,'Buildings · objects · neighbors','#34533d',12).setBackgroundColor('#f7edcf').setPadding(7,4);
+    this.add.image(onsen.x,onsen.y,'onsen','pool').setDisplaySize(360,250).setDepth(800);
+    this.label(onsen.x,720,'ORANGE SPRING ONSEN','#445c40',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.label(onsen.x,1032,'Mochi & Lilito usually relax here','#445c40',11).setBackgroundColor('#fff2d7').setPadding(5,2);
+    this.terrain('stone',120,980,280,44);
     this.label(780,690,'The village commons','#3e5b3c',18);
+    this.refreshNotice();
+  }
+  private paintNpcs(){
+    for(const npc of worldNpcs.filter(npc=>npc.map===this.mapId)){
+      const position=npc.position();
+      this.add.image(position.x,position.y,npc.texture,npc.frame).setOrigin(.5,1).setDisplaySize(npc.width,npc.height).setDepth(position.y);
+      this.nameplate(position.x,position.y-npc.height-13,npc.name);
+      const notice=this.label(position.x+35,position.y-npc.height-13,'!','#ffe6a1',24).setBackgroundColor('#4c6248').setPadding(7,1);
+      notice.setVisible(unreadUpdates().some(update=>update.target==='npc'&&update.targetId===npc.id));
+      this.npcNotices.set(npc.id,notice);
+    }
     this.refreshNotice();
   }
   private cottage(g:Phaser.GameObjects.Graphics) {
@@ -162,11 +183,6 @@ export class WorldScene extends Phaser.Scene {
         this.add.image(x,y,asset.atlas,asset.frame).setDisplaySize(asset.width,asset.height).setDepth(depth);
       }
     }
-    // Lucia's feet and chair sit behind her own desk; the visitor approaches from below.
-    this.add.image(lucia.seat.x,lucia.seat.y,'lucia','seated').setOrigin(.5,1).setDisplaySize(30,70).setDepth(650);
-    this.nameplate(lucia.seat.x,lucia.seat.y-88,lucia.name);
-    this.npcNotice=this.label(lucia.seat.x+52,lucia.seat.y-88,'!','#ffe6a1',24).setBackgroundColor('#4c6248').setPadding(7,1);
-    this.refreshNotice();
     const welcome=this.add.graphics().setDepth(1);
     welcome.fillStyle(0xc7a6a1);welcome.fillRoundedRect(530,740,140,92,12);
     this.label(600,783,'Welcome home','#624c40',12);
@@ -194,22 +210,22 @@ export class WorldScene extends Phaser.Scene {
     this.actor.setPosition(this.position.x,this.position.y).setDepth(this.position.y);
     this.tick+=delta;this.actor.setScale(1,dx||dy?1+Math.sin(this.tick/75)*.025:1);
     const portal=portalAt(maps[this.mapId],this.position);
-    const npc=this.mapId==='cottage'&&nearby(this.position,lucia.approach,76);
+    const npc=worldNpcs.find(npc=>npc.map===this.mapId&&nearby(this.position,npc.approach(),65));
     const plot=this.mapId==='garden'?planningPlots.find(plot=>nearby(this.position,plot.approach,72)):undefined;
     const board=this.mapId==='garden'&&nearby(this.position,requestBoard.approach,78);
     const build=board||!!plot;
     const desk=this.mapId==='cottage'&&nearby(this.position,studyDesk.approach,55);
     this.highlight.clear();
     if(desk){this.highlight.lineStyle(2,0xffefac,.75+Math.sin(this.tick/350)*.2);this.highlight.strokeRoundedRect(studyDesk.seat.x-78,studyDesk.seat.y-50,156,98,6);}
-    if(npc){this.highlight.lineStyle(2,0xffefac,.8);this.highlight.strokeRoundedRect(lucia.seat.x-82,lucia.seat.y-32,164,110,8);}
+    if(npc){const point=npc.position();this.highlight.lineStyle(2,0xffefac,.8);this.highlight.strokeRoundedRect(point.x-42,point.y-npc.height-5,84,npc.height+15,8);}
     if(board){this.highlight.lineStyle(3,0xffefac,.8);this.highlight.strokeRoundedRect(requestBoard.x-100,requestBoard.y-100,200,200,10);}
     if(plot){const {x,y,w,h}=plot.bounds;this.highlight.lineStyle(3,0xffefac,.85);this.highlight.strokeRoundedRect(x-4,y-4,w+8,h+8,8);}
     const pending=unreadUpdates().find(update=>{const location=updateLocation(update);return update.target==='world'&&location&&location.map===this.mapId&&nearby(this.position,location,65);});
     const kind=pending?'updates':npc?'npc':build?'construction':null;
-    const prompt=this.seated?'Stand up':portal?portal.label:pending?'Inspect changes':desk?'Sit at your desk':npc?'Talk to Lucia':plot?`Plan ${plot.name}`:board?'Open the request board':'';
+    const prompt=this.seated?'Stand up':portal?portal.label:pending?'Inspect changes':desk?'Sit at your desk':npc?`Talk to ${npc.name}`:plot?`Plan ${plot.name}`:board?'Open the request board':'';
     const pressed=Phaser.Input.Keyboard.JustDown(this.keys.E)||Phaser.Input.Keyboard.JustDown(this.keys.SPACE)||controls.interact;
     controls.interact=false;
-    if(pressed&&!controls.blocked){if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62,true);logActivity('You sat at your desk.');}else if(kind) interact(kind);}
+    if(pressed&&!controls.blocked){if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.person(this.position.x,this.position.y,0xd78b62,true);logActivity('You sat at your desk.');}else if(npc){gameEvents.dispatchEvent(new CustomEvent('talk-npc',{detail:npc.id}));}else if(kind) interact(kind);}
     const key=`${this.seated}:${this.mapId}:${prompt}:${Math.round(this.position.x/8)}:${Math.round(this.position.y/8)}`;
     if(key!==this.lastState){this.lastState=key;publish({map:this.mapId,prompt,interaction:kind,x:this.position.x,y:this.position.y,plotId:plot?.id});}
   }

@@ -1,3 +1,4 @@
+import { onsen } from './npcs';
 import { homePerimeter, requestBoard } from './planning';
 import { homeSolids } from './home';
 export type MapId = 'garden' | 'cottage';
@@ -7,7 +8,7 @@ export interface Portal { area: Rect; target: MapId; spawn: Point; label: string
 export interface WorldMap { id: MapId; name: string; width: number; height: number; spawn: Point; solids: Rect[]; portals: Portal[] }
 export const maps: Record<MapId, WorldMap> = {
   garden:{id:'garden',name:'Village Commons',width:1440,height:1120,spawn:{x:466,y:430},
-    solids:[{x:342,y:160,w:244,h:168},requestBoard.solid],
+    solids:[{x:342,y:160,w:244,h:168},requestBoard.solid,onsen.solid],
     portals:[{area:{x:445,y:321,w:40,h:47},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
   cottage:{id:'cottage',name:'Our Home & Office',width:1200,height:960,spawn:{x:600,y:770},
     solids:[...homePerimeter,...homeSolids()],

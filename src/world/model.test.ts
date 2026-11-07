@@ -1,3 +1,4 @@
+import { worldNpcs } from './npcs';
 import { describe,expect,it } from 'vitest';
 import { homeLayout, homeRooms, lucia, studyDesk, homeAnchor } from './home';
 import { planningPlots, requestBoard } from './planning';
@@ -47,6 +48,9 @@ describe('movement and map routes',()=>{
 it('keeps planning plots empty and their request anchors walkable',()=>{
   expect(canStand(maps.garden,requestBoard.approach)).toBe(true);
   for(const plot of planningPlots){expect(canStand(maps.garden,plot.approach)).toBe(true);expect(canStand(maps.garden,{x:plot.bounds.x+plot.bounds.w/2,y:plot.bounds.y+plot.bounds.h/2})).toBe(true);}
+});
+it('keeps every NPC interaction approach outside solid scenery',()=>{
+  for(const npc of worldNpcs)expect(canStand(maps[npc.map],npc.approach()),npc.id).toBe(true);
 });
 describe('idea drafts',()=>{
   it('rejects empty and oversized proposals before saving',()=>{

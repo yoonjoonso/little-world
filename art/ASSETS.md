@@ -31,3 +31,9 @@ Generation briefs: `art/source/lucia-home-prompts.md`. Room/prop definitions, in
 ## Capybara character draft (not placed)
 
 `art/source/capybara-draft-v1.png`: built-in OpenAI image generation, November 7, 2026. Two isolated cozy illustrated capybaras: Mochi with a green turtle backpack and orange on head; smaller Lilito with a small black kippah. Transparent background, frontal elevated game view, brown outlines and upper-left light. Original generated PNG, no layered source or third-party pack. Saved as a draft for the confirmed onsen addition; not currently loaded by the game. Further scale/pose review and directional/behavior art remain.
+
+## Onsen and capybaras applied v1
+
+- `public/assets/characters/capybaras-v1.png` is an unchanged copy of the registered capybara draft, now used for Mochi/Lilito. Frames select the separate characters. No new raster edit.
+- `public/assets/objects/onsen-v1.png`: original built-in OpenAI image generation, November 7, 2026. Brief: isolated open-air oval stone onsen pool with warm pale turquoise water, steam, small floating oranges, bamboo spout and wooden near-edge step; cozy hand-painted straight-on elevated RPG view, upper-left light, true transparency, no people/animals/text/landscape. Generated PNG is source; no layered source.
+- Placed as an open-air area with separate collision and safe NPC approaches. NPCs are a static relaxation pass; wandering/authoritative shared routines remain pending. Reusable appearance/interaction definitions are in src/world/npcs.ts.
