@@ -18,7 +18,7 @@ npm test
 npm run build
 ```
 
-See [the project specification](docs/PROJECT.md) for scope, architecture, and next milestones. Supabase integration is scaffolded; online multiplayer and AI calls are not enabled in this first slice. Free GitHub Pages hosting has been approved; initial setup is pending. Browser interaction QA is still pending because the session preview was unreachable.
+See [the project specification](docs/PROJECT.md) for scope, architecture, and next milestones. Supabase integration is scaffolded; online multiplayer and AI calls are not enabled in this first slice. The first prototype is live at https://yoonjoonso.github.io/little-world/. Viewport-filling interface changes are pending review and deployment approval. Browser interaction QA is still pending because the session preview was unreachable.
 
 ## Workflow
 
