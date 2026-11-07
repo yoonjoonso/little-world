@@ -13,12 +13,12 @@ PR #9: onsen with Mochi/Lilito, reusable NPC identities and local inboxes, house
 
 ## Current increment
 
-Yoon avatar based on two supplied photos, four standing facings and a seated pose, 64-unit source scale; no original private photos copied into the public repo. Explicit Create/Update existing request-board mode with stable target IDs for players, NPCs, rooms, locations and placed objects; optional photo references retained locally. Shared photo/agent processing is still unconnected. Validate this branch and publish before starting another large increment. Source draft sheets for storefronts/religious buildings are saved but are not placed yet.
+Yoon avatar based on two supplied photos, four standing facings and a seated pose, 64-unit source scale; no original private photos copied into the public repo. Explicit Create/Update existing request-board mode with stable target IDs for players, NPCs, rooms, locations and placed objects; optional photo references retained locally. Shared photo/agent processing is still unconnected. PR #10 merged after 24 passing tests/build and browser checks; Pages publishing succeeded. Source draft sheets for storefronts/religious buildings are saved but are not placed yet.
 
 ## Next unblocked work
 
-1. Shared bathing interaction profile for onsen and bathtub. Enter via interaction, choose a separate activity slot; hide lower body under a waterline only while bathing, leave to a legal approach. Apply the same immersion rendering to existing capybaras so they are not visibly floating above water. Plan for both human players joining later with little refactoring.
-2. Clear NPC affordances for all NPCs: shared backed nameplates, small talk bubble, close-range highlight/prompt, distinct unread !. Preserve separate inboxes and do not invent agent replies.
+1. Implemented locally in the bathing increment: shared bathing interaction profile for onsen and bathtub. Enter via interaction, choose a separate activity slot; hide lower body under a waterline only while bathing, leave to a legal approach. Apply the same immersion rendering to existing capybaras so they are not visibly floating above water. Plan for both human players joining later with little refactoring.
+2. Implemented in the bathing increment: clear NPC affordances for all NPCs: shared backed nameplates, small talk bubble, close-range highlight/prompt, distinct unread !. Preserve separate inboxes and do not invent agent replies.
 3. Finish reviewing interior scale/layering and route clearance; player art is a directional static-pose pass, not finished walk cycles. Lucia is normally seated at reception, sometimes near the entrance when routines are later connected.
 4. Add exterior-only buildings in reusable data. All unfinished interiors share the same locked entrance art plus Coming soon marker. User explicitly deferred most new interiors; do not build a large set of generic enterable interiors yet. Existing home remains enterable.
 5. Small beach farther out at the edge of town (user clarified beach, not peach).
@@ -41,3 +41,7 @@ Needed: real project access and schema review, Auth/account mapping for Yoon/Lil
 ## Scheduled continuation requested but NOT created
 
 Yoon requested a work cycle every three hours. No automation_update/scheduling tool is exposed in this chat, so no recurring automation exists from this session. Do not claim otherwise. Ready work-cycle prompt is in docs/WORK_CYCLE.md. Local scheduled tasks require the machine/app awake; user is considering Codex Cloud so coding can run independently. App project/cloud setup also was not performed by this chat (no project-management tools).
+
+## Bathing increment verification
+
+26 tests/build and browser entry/leave/movement/crop checks pass. NPC immersion and human immersion share a rendering primitive. Separate guest slots avoid the static capybara places. Shared snapshots carry activity target/slot, but reservations are not server-atomic until Supabase is configured. Third compatibility migration is prepared and unapplied. Confirm PR/deployment status before claiming a later increment is live.

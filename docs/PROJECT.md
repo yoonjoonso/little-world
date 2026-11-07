@@ -204,3 +204,11 @@ The exit mat remains inside a fully solid interior boundary. Walking toward it s
 Yoon's supplied photo references now produce the local player avatar: glasses, short black hair, black tee and jeans, four standing facings and front-facing seated pose at a consistent 64-unit source scale. This is a directional static-pose pass with movement bob, not a finished walk-cycle set. The remote companion remains a placeholder until account-character mapping is configured.
 
 The request board now distinguishes Create from Update existing. Updates choose an explicit stable character/player, room, location or placed-object ID, accept descriptions and optional photo references, and preserve the target identity. Mismatched or unknown targets are rejected before saving. These are still local requests; shared photo uploads, generating drafts from other accounts/Muse, review approval and version rollback require the Supabase/worker pipeline. The pending unapplied request schema includes operation and target ID.
+
+## Reusable bathing and NPC affordances
+
+Onsen and bathtub are data-driven bathing targets with approach/exit points, named spaced slots, water color and visible-body fraction. Enter/leave interactions select an available guest place, stop walking while bathing and crop the lower body beneath a rendered waterline. Mochi/Lilito use the same immersion primitive. Their reserved places are not selected for player guests. Remote bathing snapshots have target/slot identity and an immersion placeholder renderer; actual two-player reservations still require server-side atomic claims, not the local candidate selector.
+
+All NPCs use backed names plus a small chat cue, close-range highlight/action and hand cursor on the character. The cue changes to a delivered-response ! when unread. Pending foundation/compatibility schemas include bathing state and target/slot columns; no live schema changed.
+
+Validation includes enter/leave for both onsen and bathtub, movement blocked while bathing, collision-safe exit points, spaced/capacity-bound slots, immersion screenshots and existing UI/notification checks. 26 tests pass and the production build passes.

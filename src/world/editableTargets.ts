@@ -1,5 +1,6 @@
 import { homeLayout,homeRooms } from './home';
-import { onsen,worldNpcs } from './npcs';
+import { onsen } from './bathing';
+import { worldNpcs } from './npcs';
 import { planningPlots,requestBoard } from './planning';
 export interface EditableTarget {id:string;name:string;kind:'building'|'npc'|'object'|'map'}
 export const editableTargets:EditableTarget[]=[

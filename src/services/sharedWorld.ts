@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 import { gameEvents, type GameState } from '../game/bridge';
 
 export interface SharedEvent {id:string;user_id:string;kind:'message'|'log';body:string;created_at:string}
-export interface RemotePlayer {user_id:string;map_id:'garden'|'cottage';x:number;y:number;activity:string;updated_at:string}
+export interface RemotePlayer {user_id:string;map_id:'garden'|'cottage';x:number;y:number;activity:string;activity_target?:string;activity_slot?:string;updated_at:string}
 export interface SharedSnapshot {worldId:string|null;players:RemotePlayer[];events:SharedEvent[];error:string|null}
 // Database-backed first slice. Polling is intentionally bounded, not a per-frame write.
 // Realtime interpolation can replace delivery without changing IDs or persistence.
@@ -33,7 +33,7 @@ export function connectWorld(session:Session,receive:(snapshot:SharedSnapshot)=>
       }
       if(stopped)return;
       if(latest){
-        const value={world_id:worldId,user_id:own,map_id:latest.map,x:latest.x,y:latest.y,activity:latest.prompt==='Stand up'?'sitting':'idle'};
+        const value={world_id:worldId,user_id:own,map_id:latest.map,x:latest.x,y:latest.y,activity:latest.activity||(latest.prompt==='Stand up'?'sitting':'idle'),activity_target:latest.activityTarget||null,activity_slot:latest.activitySlot||null};
         const signature=JSON.stringify(value);
         if(signature!==lastSaved||Date.now()-lastWrite>15000){
           const result=await client.from('player_states').upsert({...value,updated_at:new Date().toISOString()});
