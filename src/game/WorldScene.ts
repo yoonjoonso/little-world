@@ -15,9 +15,20 @@ export class WorldScene extends Phaser.Scene {
   create() {
     this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE',false) as Record<string,Phaser.Input.Keyboard.Key>;
     this.paint();
+    this.scale.on(Phaser.Scale.Events.RESIZE,this.resizeWorld,this);
     const blur=()=>{resetControls(); this.input.keyboard?.resetKeys();};
     window.addEventListener('blur',blur);
-    this.events.once('shutdown',()=>{window.removeEventListener('blur',blur);resetControls();});
+    const visibility=()=>{if(document.hidden)blur();};
+    document.addEventListener('visibilitychange',visibility);
+    this.events.once('shutdown',()=>{this.scale.off(Phaser.Scale.Events.RESIZE,this.resizeWorld,this);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',visibility);resetControls();});
+  }
+  private resizeWorld() {
+    const map=maps[this.mapId];
+    const camera=this.cameras.main;
+    // Fill the viewport without stretching sprites; follow the player when cropped.
+    camera.setZoom(Math.max(this.scale.width/map.width,this.scale.height/map.height));
+    camera.setBounds(0,0,map.width,map.height);
+    camera.centerOn(this.position.x,this.position.y);
   }
   private rect(g: Phaser.GameObjects.Graphics,x:number,y:number,w:number,h:number,c:number) {g.fillStyle(c,1);g.fillRect(x,y,w,h);}
   private label(x:number,y:number,text:string,color='#f9f2dc',size=13) {
@@ -47,6 +58,7 @@ export class WorldScene extends Phaser.Scene {
     this.actor=this.person(this.position.x,this.position.y,0xd78b62,this.seated);
     this.highlight=this.add.graphics().setDepth(900);
     this.lastState='';
+    this.resizeWorld();
   }
   private garden(g:Phaser.GameObjects.Graphics) {
     this.rect(g,0,0,960,640,0x90ac72);
@@ -110,6 +122,7 @@ export class WorldScene extends Phaser.Scene {
     let dx=0,dy=0;
     if(!controls.blocked&&!this.seated){dx=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left);dy=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);}
     this.position=move(maps[this.mapId],this.position,dx,dy,delta);
+    this.cameras.main.centerOn(this.position.x,this.position.y);
     this.actor.setPosition(this.position.x,this.position.y).setDepth(this.position.y);
     this.tick+=delta;this.actor.setScale(1,dx||dy?1+Math.sin(this.tick/75)*.025:1);
     const portal=portalAt(maps[this.mapId],this.position);

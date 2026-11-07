@@ -1,6 +1,6 @@
 # Our Little World
 
-Status: first playable prototype ready for an online preview. Yoon approved free online hosting on November 6, 2026; GitHub Pages setup is being prepared. Deployment has not yet completed.
+Status: first single-player prototype is live at https://yoonjoonso.github.io/little-world/. A viewport-filling interface update is in development on `feat/immersive-game-layout`; it is not yet approved for deployment.
 Owners: Yoon owns engine/code decisions; Yoon and Lila shape the world and content.
 
 ## Product
@@ -30,10 +30,10 @@ Keep one application with separate game, world, component, and service modules. 
 - [x] E / Space and a mobile Interact button share the same interaction action.
 - [x] A scripted conversational NPC with reply choices.
 - [x] An under-construction board that saves local idea drafts, without building them automatically.
-- [x] Right-side activity panel with All, Messages, and Logs filters.
+- [x] Collapsible in-game activity overlay with All, Messages, and Logs filters; a badge counts unread activity while collapsed.
 - [x] Local messages and semantic logs for map transitions and sitting/standing.
 - [ ] Live, authenticated two-player sync. Current UI explicitly says offline and local.
-- [ ] Browser verification complete. The session browser could not reach the local preview server; manual QA remains required.
+- [ ] Browser verification complete. The initial deployed game was visually checked; reliable keyboard/touch interaction QA and the new layout's browser QA remain pending. The session browser cannot reach the local preview server.
 
 Validation: `npm test` passed 6 tests; `npm run build` passed TypeScript and the production bundle. Phaser produces a bundle-size advisory. Database migration has not been applied or integration-tested.
 
@@ -95,6 +95,16 @@ Use `feat/*`, `fix/*`, and `docs/*` branches with pull requests into `main`. The
 
 The `Publish game to GitHub Pages` workflow tests and builds `dist/`, then publishes it from approved changes on `main`. Vite emits relative asset URLs so the build works at the repository subpath. No Supabase credentials or paid services are needed for this offline preview.
 
-One-time owner setup: repository Settings → Pages → Build and deployment → Source → GitHub Actions. This setting is not exposed by the connected GitHub tools. After setup, publish the reviewed prototype by merging its PR to `main`. The workflow also supports a manual run. Do not merge future changes to `main` without approval to publish them.
+Completed owner setup: repository Settings → Pages → Build and deployment → Source → GitHub Actions. The first prototype was published successfully from PR #1. Publish future reviewed changes by merging their PR to `main` after Yoon approves deployment. The workflow also supports a manual run. Do not merge future changes to `main` without approval to publish them.
 
 The prototype site is public. Its messages and logs remain local to each browser session, and idea drafts remain local to that browser. Hosting alone does not enable multiplayer. No live Supabase migration is needed for the preview.
+
+## Game-first interface (current change)
+
+The game itself fills the browser viewport with no surrounding landing-page header, intro, footer, or fixed sidebar. Phaser resizes with the viewport and the camera follows the player when the map is cropped, preserving artwork proportions. Compact in-game overlays show the location, day, help, and single-player preview status.
+
+Chat starts collapsed. A floating chat button expands/collapses the activity panel without restarting the game or losing the current session's messages, logs, draft message, or filter. Unread activity increments a badge while collapsed and clears when opened. Current notifications are local activity logs; future remote messages will feed the same notification behavior. No simulated incoming messages are shown. Opening chat pauses movement/input for now to prevent typing or touch gestures moving the character.
+
+On mobile and other coarse-pointer devices, a persistent D-pad and contextual interaction button sit inside the game. Safe-area offsets keep controls away from device edges. Pointer cancellation, capture loss, tab blur, and hidden-page transitions release held directions. Chat has its own scrolling area; the page itself does not scroll. These are first-class mobile controls, not a requirement to use a physical keyboard.
+
+Art direction remains unconfirmed. Compare three more detailed directions using the same cottage/garden scene: detailed cozy pixel art, hand-painted 2D storybook art, and pre-rendered miniature/diorama sprites. Keep the existing placeholder artwork until Yoon selects a direction. Direction images are concept previews, not assets automatically installed into the game. Do not add unconfirmed city buildings as part of the art comparison.
