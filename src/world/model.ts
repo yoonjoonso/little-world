@@ -1,3 +1,4 @@
+import { vendorSolids } from './vendors';
 import { worldSize,homeExterior } from './layout';
 import { villageBuildings,buildingSolid } from './buildings';
 import { waterSolids } from './park';
@@ -11,8 +12,8 @@ export interface Portal { area: Rect; target: MapId; spawn: Point; label: string
 export interface WorldMap { id: MapId; name: string; width: number; height: number; spawn: Point; solids: Rect[]; portals: Portal[] }
 export const maps: Record<MapId, WorldMap> = {
   garden:{id:'garden',name:'Our Little World',...worldSize,spawn:{...homeExterior.spawn},
-    solids:[homeExterior.solid,requestBoard.solid,onsen.solid,...villageBuildings.map(buildingSolid),...waterSolids],
-    portals:[{area:{x:770,y:825,w:60,h:70},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
+    solids:[...vendorSolids,homeExterior.solid,requestBoard.solid,onsen.solid,...villageBuildings.map(buildingSolid),...waterSolids],
+    portals:[{area:{x:homeExterior.entrance.x-30,y:homeExterior.entrance.y-40,w:60,h:70},target:'cottage',spawn:{x:600,y:770},label:'Enter our home'}]},
   cottage:{id:'cottage',name:'Our Home & Office',width:1200,height:960,spawn:{x:600,y:770},
     solids:[...homePerimeter,...homeSolids()],
     portals:[{area:{x:558,y:800,w:84,h:40},target:'garden',spawn:{...homeExterior.spawn},label:'Exit house'}]},
@@ -24,10 +25,13 @@ export function canStand(map: WorldMap, p: Point) {
 }
 export function move(map: WorldMap,p: Point,dx: number,dy: number,delta: number,speedMultiplier=1): Point {
   const length=Math.hypot(dx,dy); if(!length) return p;
-  const distance=150*speedMultiplier*Math.min(delta,50)/1000;
-  const next={...p}; const x=dx/length*distance, y=dy/length*distance;
-  if(canStand(map,{x:next.x+x,y:next.y})) next.x+=x;
-  if(canStand(map,{x:next.x,y:next.y+y})) next.y+=y;
+  const distance=260*speedMultiplier*Math.min(delta,50)/1000;
+  const next={...p},steps=Math.max(1,Math.ceil(distance/5));
+  const x=dx/length*distance/steps,y=dy/length*distance/steps;
+  for(let step=0;step<steps;step++){
+    if(canStand(map,{x:next.x+x,y:next.y}))next.x+=x;
+    if(canStand(map,{x:next.x,y:next.y+y}))next.y+=y;
+  }
   return next;
 }
 export function portalAt(map: WorldMap,p: Point) { return map.portals.find(t=>overlaps(t.area,{...p,w:1,h:1})); }

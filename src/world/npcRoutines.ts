@@ -4,6 +4,8 @@ export type NpcPhase='idle'|'walking'|'interacting'|'active'|'waiting'|'blocked'
 export type NpcActivity='working'|'relaxing'|'reading'|'shopping'|'walking'|'eating'|'watching';
 export interface NpcDefinition {id:string;name:string;homeArea:string;usualActivity:NpcActivity;outingAreas:string[];outingHour:number}
 export const npcDefinitions:NpcDefinition[]=[
+  {id:'mateo',name:'Mateo',homeArea:'taco.stand',usualActivity:'working',outingAreas:['village.commons'],outingHour:17},
+  {id:'rosa',name:'Rosa',homeArea:'hotdog.cart',usualActivity:'working',outingAreas:['village.commons'],outingHour:16},
   {id:'lucia',name:'Lucia',homeArea:'home.reception',usualActivity:'working',outingAreas:['park.walk','northgate.browsing'],outingHour:12},
   {id:'mochi',name:'Mochi',homeArea:'onsen.pool',usualActivity:'relaxing',outingAreas:['park.walk','village.commons'],outingHour:10},
   {id:'lilito',name:'Lilito',homeArea:'onsen.pool',usualActivity:'relaxing',outingAreas:['park.walk','village.commons'],outingHour:15},

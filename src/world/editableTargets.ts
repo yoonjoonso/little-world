@@ -1,3 +1,4 @@
+import { vendorStands } from './vendors';
 import { activityTargets } from './activities';
 import { villageBuildings } from './buildings';
 import { park } from './park';
@@ -7,6 +8,8 @@ import { worldNpcs } from './npcs';
 import { planningPlots,requestBoard } from './planning';
 export interface EditableTarget {id:string;name:string;kind:'building'|'npc'|'object'|'map'}
 export const editableTargets:EditableTarget[]=[
+  ...vendorStands.map(stand=>({id:stand.id,name:stand.name,kind:'object' as const})),
+  {id:'central-commons',name:'Central Commons',kind:'map'},
   {id:'big-bear',name:'Big Bear nature trails and lake',kind:'map'},
   ...activityTargets.filter(target=>target.map==='garden').map(target=>({id:target.id,name:target.name,kind:'object' as const})),
   ...villageBuildings.map(building=>({id:building.id,name:building.name,kind:'building' as const})),

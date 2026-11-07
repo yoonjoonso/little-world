@@ -1,5 +1,5 @@
 import type { MapId } from '../world/model';
-export type Interaction = 'npc' | 'construction' | 'updates' | 'closed' | null;
+export type Interaction = 'npc' | 'construction' | 'updates' | 'closed' | 'settings' | null;
 export interface GameState { map: MapId; prompt: string; interaction: Interaction; x: number; y: number; plotId?:string; activity?:'idle'|'sitting'|'bathing'|'running'|'fishing'|'playing'|'resting'|'showering'|'watching'; activityTarget?:string; activitySlot?:string;canInteract?:boolean }
 export const controls = { up:false,down:false,left:false,right:false,interact:false,sprint:false,blocked:false };
 export const gameEvents = new EventTarget();
