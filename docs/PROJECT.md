@@ -190,3 +190,11 @@ Supabase target identified by Yoon: **base** (exact project ID still unverified)
 Mochi: capybara with green turtle backpack. Lilito: smaller capybara with a small black kippah. Both normally relax at an open-air onsen, sometimes with an orange on their head, with occasional wandering elsewhere. No separate capybara house needed. Religious district: church, mosque, synagogue and Sikh gurdwara. These are confirmed additions, not a claim that they have already been built.
 
 See docs/VILLAGE.md for the subsequently confirmed leaders, separate gurdwara worship/langar areas, gym/library/sectioned park, Northgate Groceries, one-auditorium cinema, and occupancy-aware daily routines. src/world/npcRoutines.ts is a tested planning layer only; authoritative movement, shared reservations and scheduled worker execution are not connected yet.
+
+## Incremental onsen update
+
+Mochi and smaller Lilito now appear at the open-air onsen, with nameplates and separate local NPC inboxes. Appearance, map, position/approach, portrait and dialogue identity are data in src/world/npcs.ts; future NPCs share these paths. They currently relax in place; no autonomous wandering is claimed. The art style contract is saved in art/STYLE_GUIDE.md. Remaining new buildings use coming-soon entrance status until their interiors are built.
+
+## House exit repair and static minimap
+
+The exit mat remains inside a fully solid interior boundary. Walking toward it stops inside; only an explicit Exit house interaction switches maps. Saved positions in the void outside the house are rejected and recover to the interior spawn. Regression checks cover walking into the exit and invalid restore positions. The minimap is display-only as requested; reading/acknowledging still requires visiting the target. Standard human art scale is 64 units and is specified in the art guide. Yoon supplied two photo references for his player avatar; that art is in preparation, not represented by the old procedural placeholder.

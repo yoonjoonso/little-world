@@ -9,12 +9,12 @@ export interface PropDefinition {
 }
 export const homeProps: Record<string, PropDefinition> = {
   bed: { atlas:'home', frame:'bed', width:160, height:180, solid:{x:-80,y:-90,w:160,h:180} },
-  bath: { atlas:'home', frame:'bath', width:174, height:120, solid:{x:-87,y:-60,w:174,h:120} },
+  bath: { atlas:'home', frame:'bath', width:150, height:104, solid:{x:-75,y:-52,w:150,h:104} },
   bookcase: { atlas:'home', frame:'bookcase', width:100, height:110, solid:{x:-50,y:-35,w:100,h:70} },
   workDesk: { atlas:'home', frame:'workDesk', width:146, height:92, solid:{x:-73,y:-46,w:146,h:92} },
   secretaryDesk: { atlas:'cozy', frame:'desk', width:154, height:94, solid:{x:-77,y:-47,w:154,h:94} },
   frontDesk: { atlas:'office', frame:'frontDesk', width:146, height:100, solid:{x:-73,y:-40,w:146,h:80} },
-  shower: { atlas:'office', frame:'shower', width:90, height:145, solid:{x:-45,y:-30,w:90,h:60} },
+  shower: { atlas:'office', frame:'shower', width:72, height:126, solid:{x:-36,y:-25,w:72,h:50} },
   sink: { atlas:'kitchen', frame:'sink', width:100, height:100, solid:{x:-45,y:-30,w:90,h:60} },
   stove: { atlas:'kitchen', frame:'stove', width:80, height:100, solid:{x:-35,y:-30,w:70,h:60} },
   fridge: { atlas:'kitchen', frame:'fridge', width:70, height:120, solid:{x:-30,y:-30,w:60,h:60} },
@@ -24,20 +24,20 @@ export const homeProps: Record<string, PropDefinition> = {
 };
 export interface PropInstance extends Point { id:string; definition:string }
 export interface RoomDefinition {
-  name:string; width:number; height:number; floor:'wood'|'stone';
+  name:string; width:number; height:number; floor:'wood'|'ceramic';
   walls:Rect[]; props:PropInstance[];
 }
 export const homeRooms: Record<string,RoomDefinition> = {
   bedroom: {name:'Bedroom',width:270,height:280,floor:'wood',
-    walls:[{x:0,y:272,w:90,h:8},{x:170,y:272,w:100,h:8},{x:266,y:0,w:8,h:280}],
+    walls:[{x:0,y:272,w:90,h:12},{x:170,y:272,w:100,h:12},{x:266,y:0,w:12,h:280}],
     props:[{id:'bed',definition:'bed',x:130,y:135},{id:'plant',definition:'plant',x:230,y:45}]},
-  bathroom: {name:'Bathroom',width:270,height:280,floor:'stone',
-    walls:[{x:0,y:272,w:90,h:8},{x:170,y:272,w:100,h:8},{x:266,y:0,w:8,h:280}],
-    props:[{id:'bath',definition:'bath',x:130,y:110},{id:'shower',definition:'shower',x:215,y:220}]},
+  bathroom: {name:'Bathroom',width:270,height:280,floor:'ceramic',
+    walls:[{x:0,y:272,w:90,h:12},{x:170,y:272,w:100,h:12},{x:266,y:0,w:12,h:280}],
+    props:[{id:'bath',definition:'bath',x:90,y:110},{id:'shower',definition:'shower',x:218,y:165}]},
   study: {name:'Study',width:320,height:280,floor:'wood',
-    walls:[{x:0,y:272,w:110,h:8},{x:190,y:272,w:130,h:8}],
+    walls:[{x:0,y:272,w:110,h:12},{x:190,y:272,w:130,h:12}],
     props:[{id:'books',definition:'bookcase',x:65,y:70},{id:'desk',definition:'frontDesk',x:205,y:170},{id:'chair',definition:'chair',x:205,y:145}]},
-  kitchen: {name:'Kitchen',width:300,height:300,floor:'stone',walls:[{x:292,y:0,w:8,h:150},{x:292,y:235,w:8,h:65}],
+  kitchen: {name:'Kitchen',width:300,height:300,floor:'ceramic',walls:[{x:292,y:0,w:12,h:150},{x:292,y:235,w:12,h:65}],
     props:[{id:'sink',definition:'sink',x:65,y:80},{id:'stove',definition:'stove',x:155,y:80},{id:'fridge',definition:'fridge',x:245,y:70},{id:'table',definition:'diningTable',x:130,y:220}]},
   reception: {name:'Reception',width:860,height:300,floor:'wood',walls:[],
     props:[{id:'secretary-desk',definition:'secretaryDesk',x:650,y:170},{id:'secretary-chair',definition:'chair',x:650,y:126},{id:'plant',definition:'plant',x:770,y:220}]},

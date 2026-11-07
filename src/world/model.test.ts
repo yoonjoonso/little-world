@@ -1,3 +1,4 @@
+import { worldNpcs } from './npcs';
 import { describe,expect,it } from 'vitest';
 import { homeLayout, homeRooms, lucia, studyDesk, homeAnchor } from './home';
 import { planningPlots, requestBoard } from './planning';
@@ -21,8 +22,17 @@ describe('movement and map routes',()=>{
     }
     expect(portalAt(maps.garden,{x:464,y:350})?.target).toBe('cottage');
     expect(portalAt(maps.cottage,{x:600,y:818})?.target).toBe('garden');
-    expect(canStand(maps.cottage,{x:600,y:838})).toBe(true);
+    expect(canStand(maps.cottage,{x:600,y:832})).toBe(true);
     expect(canStand(maps.cottage,{x:550,y:845})).toBe(false);
+  });
+  it('stops at the exit mat until interaction and rejects saved positions outside the home',()=>{
+    let point={...maps.cottage.spawn};
+    for(let i=0;i<100;i++)point=move(maps.cottage,point,0,1,50);
+    expect(point.y).toBeLessThan(840);expect(portalAt(maps.cottage,point)?.target).toBe('garden');
+    expect(canStand(maps.cottage,{x:600,y:900})).toBe(false);
+    expect(canStand(maps.cottage,{x:100,y:500})).toBe(false);
+    expect(canStand(maps.cottage,{x:1100,y:500})).toBe(false);
+    expect(canStand(maps.cottage,{x:600,y:100})).toBe(false);
   });
   it('keeps every room and both desk approaches reachable from the entrance',()=>{
     const map=maps.cottage;
@@ -47,6 +57,9 @@ describe('movement and map routes',()=>{
 it('keeps planning plots empty and their request anchors walkable',()=>{
   expect(canStand(maps.garden,requestBoard.approach)).toBe(true);
   for(const plot of planningPlots){expect(canStand(maps.garden,plot.approach)).toBe(true);expect(canStand(maps.garden,{x:plot.bounds.x+plot.bounds.w/2,y:plot.bounds.y+plot.bounds.h/2})).toBe(true);}
+});
+it('keeps every NPC interaction approach outside solid scenery',()=>{
+  for(const npc of worldNpcs)expect(canStand(maps[npc.map],npc.approach()),npc.id).toBe(true);
 });
 describe('idea drafts',()=>{
   it('rejects empty and oversized proposals before saving',()=>{

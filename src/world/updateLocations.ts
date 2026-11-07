@@ -1,8 +1,9 @@
-import { homeAnchor, homeLayout, homeRooms, lucia, studyDesk } from './home';
+import { worldNpcs } from './npcs';
+import { homeAnchor, homeLayout, homeRooms, studyDesk } from './home';
 import { planningPlots, requestBoard } from './planning';
 import type { WorldUpdate } from '../services/worldUpdates';
 export function updateLocation(update:Pick<WorldUpdate,'target'|'targetId'>){
-  if(update.target==='npc')return update.targetId===lucia.id?{...lucia.approach,map:'cottage' as const,name:'Lucia'}:null;
+  if(update.target==='npc'){const npc=worldNpcs.find(npc=>npc.id===update.targetId);return npc?{...npc.approach(),map:npc.map,name:npc.name}:null;}
   const plot=planningPlots.find(plot=>plot.id===update.targetId);
   if(plot)return {...plot.approach,map:'garden' as const,name:plot.name};
   if(update.targetId===studyDesk.id)return {...studyDesk.approach,map:'cottage' as const,name:'Study desk'};
