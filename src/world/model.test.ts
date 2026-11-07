@@ -1,3 +1,4 @@
+import { homeExterior } from './layout';
 import { villageBuildings,buildingApproach } from './buildings';
 import { worldNpcs } from './npcs';
 import { describe,expect,it } from 'vitest';
@@ -6,7 +7,7 @@ import { planningPlots, requestBoard } from './planning';
 import {canStand,maps,move,portalAt,makeDraft} from './model';
 describe('movement and map routes',()=>{
   it('blocks walls while allowing movement along their edge',()=>{
-    const start={x:330,y:250};const next=move(maps.garden,start,1,1,50);
+    const start={x:538,y:620};const next=move(maps.garden,start,1,1,50);
     expect(next.x).toBe(start.x);expect(next.y).toBeGreaterThan(start.y);
   });
   it('keeps diagonal movement equal to straight movement',()=>{
@@ -21,7 +22,7 @@ describe('movement and map routes',()=>{
       expect(canStand(map,map.spawn)).toBe(true);
       for(const portal of map.portals)expect(canStand(maps[portal.target],portal.spawn)).toBe(true);
     }
-    expect(portalAt(maps.garden,{x:464,y:350})?.target).toBe('cottage');
+    expect(portalAt(maps.garden,homeExterior.entrance)?.target).toBe('cottage');
     expect(portalAt(maps.cottage,{x:600,y:818})?.target).toBe('garden');
     expect(canStand(maps.cottage,{x:600,y:832})).toBe(true);
     expect(canStand(maps.cottage,{x:550,y:845})).toBe(false);
@@ -83,6 +84,6 @@ describe('idea drafts',()=>{
  const diagonal=move(maps.garden,p,1,1,50,1.8);
  expect(run.x-p.x).toBeCloseTo((walk.x-p.x)*1.8);
  expect(Math.hypot(diagonal.x-p.x,diagonal.y-p.y)).toBeCloseTo(run.x-p.x);
- const blocked=move(maps.garden,{x:330,y:250},1,0,50,1.8);
- expect(blocked.x).toBe(330);
+ const blocked=move(maps.garden,{x:538,y:620},1,0,50,1.8);
+ expect(blocked.x).toBe(538);
  });

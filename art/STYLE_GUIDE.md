@@ -14,11 +14,11 @@ Existing generated art is an initial pass, not a perfect style reference. The pr
 
 ## Scale and proportions
 
-World units equal screen pixels at native zoom. Standard adult human target: 64 native screen units tall (about 60–68 acceptable), about 28–32 wide, head about 15–17 units. Keep the same baseline scale across Yoon, Lucia and future adults. The old 44-unit procedural character is a placeholder to replace, not the size reference. Seated heads should stay at comparable scale, with the torso/legs layered behind furniture rather than the whole person hovering above it. Capybaras are smaller than humans; Lilito is visibly smaller than Mochi.
+World units equal screen pixels at native zoom. Updated November 7: standard adult human target is 96 native screen units tall, about 40–45 wide. The user approved the request board, onsen and capybara scale and identified the human, tree and building scale as too small; keep those approved landmarks unchanged. Keep the same baseline scale across Yoon, Lucia and future adults. The old 44-unit procedural character is a placeholder to replace, not the size reference. Seated heads should stay at comparable scale, with the torso/legs layered behind furniture rather than the whole person hovering above it. Capybaras are smaller than humans; Lilito is visibly smaller than Mochi.
 
 Typical prop boxes: chair 38×48, work desk 146×100, reception desk 154×94, bed 160×180, bath 150×104, shower 72×126. These are gameplay footprint/visual targets, not permission to stretch an arbitrary source image. Generate props with the corresponding aspect ratio, then preserve cropped art proportions when fitting to the box. Crop frames to the visible object plus consistent padding; do not use a full square cell if it contains large empty margins. Keep separate ground collision, seat, approach, facing and waiting anchors.
 
-Building exterior art fits roughly 220–280 units wide for a small building. Preserve useful door/approach clearance. Interior room definitions and props are independently reusable and parent-relative. Use about 90–100 units of hallway width where several characters may pass; doors must remain reachable around furniture.
+Small storefronts are about 380–450 units wide; the house is about 500, Planet Fitness about 620, AMC about 800, Northgate about 900, and Hospital about 1000. Trees are about 225 by 250. Preserve aspect ratios and set the building box to its actual visible height so entrances front the sidewalk. Preserve useful door/approach clearance. Interior room definitions and props are independently reusable and parent-relative. Use about 90–100 units of hallway width where several characters may pass; doors must remain reachable around furniture.
 
 ## Runtime/source rules
 
@@ -35,3 +35,11 @@ For a seated desk variant add: front panel toward viewer; seated user behind des
 ## Review before acceptance
 
 Inspect at native scene scale: silhouette, angle, pixel density, crop/padding, aspect ratio, foot pivot, chair/desk layering, collision and approach clearance, and nameplate contrast. Check day and night plus mobile. Review a small applied batch with Yoon before expanding the style. Angle and proportion errors are reasons to regenerate, not hide them with severe nonuniform scaling.
+
+## Individual image rule (user requirement)
+
+Every runtime object, building, character and character pose uses its own PNG. Do not generate or edit multi-asset sheets. The historical sheets remain unchanged as legacy source only. Existing art was separated with user-authorized exact crops; art/crop-manifest.json records source rectangles. Inspect the full crop against a neutral background and in the scene: no clipped heads/feet/props and no neighboring asset fragments. The old default storefront crop accidentally included Northgate; use the corrected isolated storefront, never that legacy rectangle. Each placed building has a separate image file even when the initial artwork is a shared template. Edit that individual file only. Atlas packing can be an automated build optimization later, never the editable source.
+
+## Town layout
+
+Front doors face continuous paved sidewalks. Use connected blocks, curbs, crossings and small landscaped plazas; avoid disconnected dirt rectangles. Commercial groups: AMC/Planet Fitness/Taco Bell/Starbucks/Golden Dragon; Hospital/Little Caesars/Carl’s Jr.; Northgate/Pollo Campero/La Jara Brewery. 7-Eleven is near home, Library beside Commons Park. Park activity zones share circulation and green buffers; onsen is inside the park. Big Bear mountains/lake/trails and Long Beach coast are remote regions. Minimap labels identify the current region outdoors and building indoors.

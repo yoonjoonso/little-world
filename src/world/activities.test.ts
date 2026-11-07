@@ -13,6 +13,6 @@ describe('park and shower activities',()=>{
     let position={...trackRoute[0]},index=1;
     for(let i=0;i<600;i++){const next=advanceTrack(maps.garden,position,trackRoute,index,50);expect(next.blocked).toBe(false);expect(Math.hypot(next.position.x-position.x,next.position.y-position.y)).toBeLessThanOrEqual(6.51);expect(canStand(maps.garden,next.position)).toBe(true);position=next.position;index=next.index;}
   });
-  it('resumes the nearest track segment instead of cutting across the infield',()=>{expect(routeIndexForPoint(trackRoute,{x:660,y:1463.5})).toBe(5);});
+  it('resumes the nearest track segment instead of cutting across the infield',()=>{expect(routeIndexForPoint(trackRoute,{x:(trackRoute[4].x+trackRoute[5].x)/2,y:(trackRoute[4].y+trackRoute[5].y)/2})).toBe(5);});
 
 });

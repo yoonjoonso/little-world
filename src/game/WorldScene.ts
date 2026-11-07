@@ -1,3 +1,5 @@
+import { standaloneAssets } from '../world/standaloneAssets';
+import { worldSize,homeExterior,roads,walks,trails } from '../world/layout';
 import { NpcRuntime } from '../world/npcRuntime';
 import { supabase } from '../services/supabase';
 import { activityTargets,chooseActivitySlot,advanceTrack,routeIndexForPoint } from '../world/activities';
@@ -54,51 +56,13 @@ export class WorldScene extends Phaser.Scene {
     const progress=this.add.graphics();
     const showProgress=(value:number)=>{progress.clear();progress.fillStyle(0xe9e7cf);progress.fillRoundedRect(cx-130,cy,260,10,5);progress.fillStyle(0x718e64);progress.fillRoundedRect(cx-130,cy,260*value,10,5);};
     this.load.on('progress',showProgress);this.load.once('complete',()=>{this.load.off('progress',showProgress);progress.destroy();loading.destroy();});
-    this.load.image('living',`${import.meta.env.BASE_URL}assets/objects/living-v1.png`);
+    for(const [key,path] of Object.entries(standaloneAssets)){if(key.startsWith('faith.')||key.startsWith('storefronts.')||(['individual.cinema','individual.hospital','individual.fitness','cozy.grass','cozy.stone','cozy.sand','cozy.fence','cozy.gate','cozy.shrub'].includes(key)))continue;this.load.image(key,`${import.meta.env.BASE_URL}assets/${path}`);}
     this.load.image('quietGrass',`${import.meta.env.BASE_URL}assets/tiles/quiet-grass-v2.png`);
     this.load.image('beachV2',`${import.meta.env.BASE_URL}assets/objects/beach-v2.png`);
-    this.load.image('leaders',`${import.meta.env.BASE_URL}assets/characters/faith-leaders-v1.png`);
-    this.load.image('storefronts',`${import.meta.env.BASE_URL}assets/buildings/storefronts-v1.png`);
-    this.load.image('faith',`${import.meta.env.BASE_URL}assets/buildings/faith-v1.png`);
-    this.load.image('parkWater',`${import.meta.env.BASE_URL}assets/objects/park-water-v1.png`);
-    this.load.image('yoon',`${import.meta.env.BASE_URL}assets/characters/yoon-v1.png`);
-    this.load.image('capybaras',`${import.meta.env.BASE_URL}assets/characters/capybaras-v1.png`);
-    this.load.image('onsen',`${import.meta.env.BASE_URL}assets/objects/onsen-v1.png`);
     this.load.image('requestBoard',`${import.meta.env.BASE_URL}assets/objects/request-board-v1.png`);
-    this.load.image('cozy',`${import.meta.env.BASE_URL}assets/world/cozy-atlas-v1.png`);
-    this.load.image('lucia',`${import.meta.env.BASE_URL}assets/characters/lucia-v1.png`);
-    this.load.image('office',`${import.meta.env.BASE_URL}assets/objects/office-bath-v1.png`);
-    this.load.image('kitchen',`${import.meta.env.BASE_URL}assets/objects/kitchen-v1.png`);
-    this.load.image('home',`${import.meta.env.BASE_URL}assets/objects/home-furniture-v1.png`);
   }
   create() {
-    const atlas=this.textures.get('cozy');
-    const frames:Record<string,number[]>={grass:[27,30,257,252],stone:[342,31,255,252],wood:[656,31,255,252],sand:[974,31,251,252],wall:[17,350,282,246],roof:[335,373,273,215],door:[682,349,231,253],window:[963,383,271,199],tree:[17,648,280,286],fence:[341,731,260,137],gate:[666,721,237,193],shrub:[967,721,267,193],bench:[17,1007,281,202],desk:[336,993,276,210],chair:[688,984,194,229],planter:[1000,980,214,238]};
-    for(const [name,[x,y,w,h]] of Object.entries(frames))atlas.add(name,0,x,y,w,h);
-    atlas.setFilter(Phaser.Textures.FilterMode.LINEAR);
-    const character=this.textures.get('lucia');
-    character.add('standing',0,140,75,390,1090);
-    character.add('seated',0,750,155,335,1010);
-    character.setFilter(Phaser.Textures.FilterMode.LINEAR);
-    for(const [key,frames] of Object.entries({storefronts:{store:[12,412,615,545],grocery:[627,347,616,608]},faith:{church:[61,13,503,611],mosque:[658,18,538,608],synagogue:[34,704,559,504],gurdwara:[656,654,549,560]},parkWater:{lake:[14,219,791,505],beach:[821,265,797,453]}})){for(const [name,[x,y,w,h]] of Object.entries(frames))this.textures.get(key).add(name,0,x,y,w,h);this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);}
-    for(const [name,[x,y,w,h]] of Object.entries({cait:[200,21,246,581],samir:[798,20,251,582],eli:[196,644,262,593],harjit:[796,638,253,599]}))this.textures.get('leaders').add(name,0,x,y,w,h);
-    this.textures.get('leaders').setFilter(Phaser.Textures.FilterMode.LINEAR);
-    const yoon=this.textures.get('yoon');
-    for(const [name,[x,y,w,h]] of Object.entries({front:[195,10,215,495],left:[660,15,205,490],right:[1120,15,230,490],back:[195,520,215,490],sitFront:[650,575,230,430],sitBack:[1100,575,270,420]}))yoon.add(name,0,x,y,w,h);
-    yoon.setFilter(Phaser.Textures.FilterMode.LINEAR);
-    const capybaras=this.textures.get('capybaras');capybaras.add('mochi',0,10,80,650,1020);capybaras.add('lilito',0,740,350,480,750);capybaras.setFilter(Phaser.Textures.FilterMode.LINEAR);
-    this.textures.get('onsen').add('pool',0,40,230,1160,800);
-    const furnitureFrames:Record<string,Record<string,number[]>>={
-      living:{tv:[105,180,680,600],sofa:[840,180,910,585]},
-      home:{bed:[60,20,500,590],bath:[650,80,580,470],bookcase:[85,650,460,580],workDesk:[635,710,595,480]},
-      office:{frontDesk:[20,440,625,610],shower:[685,220,530,850]},
-      kitchen:{sink:[10,20,610,580],stove:[710,30,460,560],fridge:[125,630,375,600],diningTable:[630,650,610,580]},
-    };
-    for(const [key,frames] of Object.entries(furnitureFrames)){
-      const texture=this.textures.get(key);
-      for(const [name,[x,y,w,h]] of Object.entries(frames))texture.add(name,0,x,y,w,h);
-      texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
-    }
+    for(const key of Object.keys(standaloneAssets).filter(key=>this.textures.exists(key)))this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT',false) as Record<string,Phaser.Input.Keyboard.Key>;
     this.paint();
     updateEvents.addEventListener('change',this.refreshNotice);
@@ -130,8 +94,8 @@ export class WorldScene extends Phaser.Scene {
   }
   // Shared nameplate for every NPC, including future character definitions.
   private nameplate(x:number,y:number,name:string){return this.label(x,y,name,'#4f4149',12).setBackgroundColor('rgba(255,247,226,0.9)').setPadding(5,2);}
-  private sprite(frame:string,x:number,y:number,w:number,h:number,depth=0) {return this.add.image(x,y,'cozy',frame).setDisplaySize(w,h).setDepth(depth);}
-  private terrain(frame:string,x:number,y:number,w:number,h:number) {return this.add.tileSprite(x,y,w,h,'cozy',frame).setOrigin(0).setTileScale(.25).setDepth(-5);}
+  private sprite(frame:string,x:number,y:number,w:number,h:number,depth=0) {return this.add.image(x,y,`cozy.${frame}`).setDisplaySize(w,h).setDepth(depth);}
+  private terrain(frame:string,x:number,y:number,w:number,h:number) {return this.add.tileSprite(x,y,w,h,`cozy.${frame}`).setOrigin(0).setTileScale(.25).setDepth(-5);}
   private tree(_g:Phaser.GameObjects.Graphics,x:number,y:number,size=1) {this.sprite('tree',x,y-15*size,90*size,100*size,y+35*size);}
   private person(x:number,y:number,coat:number,seated=false,bathing=false) {
     const p=this.add.container(x,y);
@@ -151,7 +115,7 @@ export class WorldScene extends Phaser.Scene {
     const actor=this.add.container(x,y);
     const shadow=this.add.graphics();shadow.fillStyle(0x273d32,.18);shadow.fillEllipse(0,0,25,8);
     const action=activityTargets.find(target=>target.id===this.actionTargetId);
-    const image=this.add.image(0,0,'yoon',this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:seated?'sitFront':this.facing).setOrigin(.5,1).setScale(64/495);
+    const image=this.add.image(0,0,`yoon.${this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:seated?'sitFront':this.facing}`).setOrigin(.5,1).setScale(96/495);
     actor.add([shadow,image]);actor.setData('avatar',image);
     const target=bathingTargets.find(target=>target.id===this.bathingTargetId);
     if(target){shadow.setVisible(false);this.immerse(image,target.visibleFraction);actor.add(this.waterline(0,-image.displayHeight*(1-target.visibleFraction),image.displayWidth+5,target.waterColor));}
@@ -173,65 +137,56 @@ export class WorldScene extends Phaser.Scene {
     this.lastState='';
     this.resizeWorld();
   }
+  private path(g:Phaser.GameObjects.Graphics,points:Point[],width:number,color:number){
+    g.lineStyle(width,color,1);g.beginPath();g.moveTo(points[0].x,points[0].y);for(const point of points.slice(1))g.lineTo(point.x,point.y);g.strokePath();g.fillStyle(color);for(const point of points)g.fillCircle(point.x,point.y,width/2);
+  }
   private garden(g:Phaser.GameObjects.Graphics) {
-    this.add.tileSprite(0,0,2560,2080,'quietGrass').setOrigin(0).setTileScale(.35).setDepth(-5);
-    this.terrain('sand',436,320,60,780);
-    this.terrain('stone',300,665,680,60);
-    this.terrain('stone',930,400,1540,65);
-    this.terrain('stone',930,790,1540,65);
-    this.terrain('stone',1120,1230,1350,65);
-    this.terrain('sand',930,430,50,850);
-    this.terrain('sand',1510,430,60,440);
-    this.terrain('sand',1430,855,140,55);
-    this.terrain('sand',1430,855,50,1010);
-    this.terrain('sand',1430,1810,800,55);
-    this.terrain('sand',436,1060,60,650);
-    this.terrain('sand',930,695,60,330);
-    [[80,140,1.2],[120,420,1.1],[80,710,1.2],[680,100,1.2],[1330,310,.9],[1330,880,1.1],[340,970,1.1]].forEach(([x,y,size])=>this.tree(g,x,y,size));
-    this.sprite('wall',464,231,244,194,160);
-    this.sprite('roof',464,159,286,120,161);
-    this.sprite('window',392,254,48,42,162);this.sprite('window',536,254,48,42,162);
-    this.sprite('door',464,296,42,64,163);
-    this.label(464,217,'OUR HOME','#715c45',12).setBackgroundColor('#fff2d7').setPadding(4,2);
-    this.label(464,366,'Enter our home · E / Space','#455e43',11).setBackgroundColor('#fff2d7').setPadding(5,3);
-    for(const plot of planningPlots){
-      const {x,y,w,h}=plot.bounds;
-      const outline=this.add.graphics().setDepth(0);
-      outline.fillStyle(0xd9c6a0,.25);outline.fillRoundedRect(x,y,w,h,6);
-      outline.lineStyle(2,0xf4e4b6,.85);outline.strokeRoundedRect(x,y,w,h,6);
-      for(const [px,py] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]]){outline.fillStyle(0x8b6949);outline.fillRect(px-3,py-10,6,18);}
-      this.label(x+w/2,y+h/2-9,plot.name,'#3c543b',13);
-      this.label(x+w/2,y+h/2+13,`${plot.size} · open plot`,'#506348',11);
-      this.label(plot.approach.x,plot.approach.y+20,'Plan something here','#3c543b',11);
-    }
-    this.add.image(requestBoard.x,requestBoard.y,'requestBoard').setDisplaySize(190,190).setDepth(945);
-    this.label(requestBoard.x,requestBoard.y-118,'✦ REQUEST BOARD ✦','#34533d',16).setBackgroundColor('#fff1cc').setPadding(10,6);
+    this.add.tileSprite(0,0,worldSize.width,worldSize.height,'quietGrass').setOrigin(0).setTileScale(.7).setDepth(-5);
+    const paving=this.add.graphics().setDepth(-3);
+    // Connected surfaces share one palette and junction geometry, without tiled dirt rectangles.
+    for(const road of roads)this.path(paving,road,312,0xa6a69b);
+    for(const road of roads)this.path(paving,road,300,0xe0ded0);
+    for(const road of roads)this.path(paving,road,132,0x777d7b);
+    for(const road of roads){for(let i=1;i<road.length;i++){const a=road[i-1],b=road[i],length=Math.hypot(b.x-a.x,b.y-a.y);paving.lineStyle(2,0xd8caa1,.7);for(let d=12;d<length;d+=48){const t=d/length,u=Math.min(d+20,length)/length;paving.lineBetween(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,a.x+(b.x-a.x)*u,a.y+(b.y-a.y)*u);}}}
+    for(const walk of walks)this.path(paving,walk,78,0xc4bda7);
+    for(const walk of walks)this.path(paving,walk,70,0xe0d6bd);
+    for(const trail of trails){this.path(paving,trail,68,0xa5aa87);this.path(paving,trail,52,0xc3b393);}
+    for(const [x,y] of [[2050,1100],[4650,1100],[2050,1900],[4650,1900],[2050,3200],[4650,3200]]){paving.fillStyle(0xf1ecdc);for(let i=-3;i<=3;i++)paving.fillRect(x-52,y+i*15-5,104,8);}
+    // Residential house is larger than a person and smaller than the commercial anchors.
+    const hx=homeExterior.x,hy=homeExterior.y;
+    this.sprite('wall',hx,hy+40,500,380,hy+195);
+    // The wall image already contains its gable trim; keep the separate roof above that trim.
+    this.sprite('roof',hx,hy-175,570,210,hy+196);
+    this.sprite('window',hx-145,hy+70,80,74,hy+197);this.sprite('window',hx+145,hy+70,80,74,hy+197);
+    this.sprite('door',hx,hy+150,66,116,hy+198);
+    this.label(hx,hy-5,'OUR HOME','#715c45',16).setBackgroundColor('#fff2d7').setPadding(5,3);
+    this.label(hx,homeExterior.entrance.y+22,'Enter our home · E / Space','#455e43',11).setBackgroundColor('#fff2d7').setPadding(5,3);
+    for(const plot of planningPlots){const {x,y,w,h}=plot.bounds;const outline=this.add.graphics().setDepth(0);outline.fillStyle(0xc2c99d,.25);outline.fillRoundedRect(x,y,w,h,16);outline.lineStyle(2,0xe7dfc1,.8);outline.strokeRoundedRect(x,y,w,h,16);for(const [px,py] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]]){outline.fillStyle(0x8b6949);outline.fillRect(px-3,py-10,6,18);}this.label(x+w/2,y+h/2,plot.name,'#405a40',14);}
+    this.add.image(requestBoard.x,requestBoard.y,'requestBoard').setDisplaySize(190,190).setDepth(requestBoard.y+50);
+    this.label(requestBoard.x,requestBoard.y-118,'REQUEST BOARD','#34533d',16).setBackgroundColor('#fff1cc').setPadding(10,6);
     this.label(requestBoard.x,requestBoard.y+108,'Buildings · objects · neighbors','#34533d',12).setBackgroundColor('#f7edcf').setPadding(7,4);
-    this.add.image(onsen.x,onsen.y,'onsen','pool').setDisplaySize(360,250).setDepth(800);
-    this.label(onsen.x,720,'ORANGE SPRING ONSEN','#445c40',14).setBackgroundColor('#fff2d7').setPadding(6,3);
-    this.label(onsen.x,1032,'Mochi & Lilito usually relax here','#445c40',11).setBackgroundColor('#fff2d7').setPadding(5,2);
-    this.terrain('stone',120,980,280,44);
-    this.label(780,690,'The village commons','#3e5b3c',18);
-    this.paintDistricts();
-    this.paintPark();
+    this.paintDistricts();this.paintPark();
+    for(const [x,y] of [[400,650],[1180,580],[1800,680],[2300,450],[3900,450],[5600,700],[3900,1800],[1800,2650],[320,2600],[3100,3350],[2900,3700],[450,3900],[1450,4300],[2800,4500],[5100,3500],[6650,4600],[4700,4800]])this.tree(g,x,y,2.5);
     this.refreshNotice();
   }
   private paintDistricts(){
-    this.label(1700,75,'THE STRIP MALL','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
-    this.label(1760,855,'FAITH & COMMUNITY','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
+    this.label(3000,220,'DOWNTOWN','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
+    this.label(1000,1650,'FAITH & COMMUNITY','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
     for(const building of villageBuildings){
       const {x,y}=building.position;
-      const image=this.add.image(x,y,building.texture,building.frame);
+      const frontage=this.add.graphics().setDepth(-2);frontage.fillStyle(0xe0ded0);frontage.fillRoundedRect(x-building.width/2-12,y+building.height/2-15,building.width+24,44,8);
+
+      const image=this.add.image(x,y,`building.${building.id}`);
       image.setScale(Math.min(building.width/image.frame.width,building.height/image.frame.height)).setDepth(y+building.height/2);
-      const labelY=building.district==='faith'?y-building.height/2-22:y-building.height*.2;
-      const title=this.label(x,labelY,building.name,'#4b5741',building.district==='faith'?13:12);
-      if(building.district==='faith')title.setBackgroundColor('#fff3dc').setPadding(5,3);
+      const labelY=building.district==='faith'?y-building.height/2-22:building.id==='cinema'?y-building.height*.02:building.id==='hospital'?y+building.height*.13:y-building.height*.2;
+      const title=this.label(x,labelY,building.name,'#4b5741',building.id==='cinema'?26:building.id==='gym'?20:16);
+      title.setBackgroundColor('#fff3dc').setPadding(5,3);
       const doorY=y+building.height*(building.district==='faith'?.29:.25),depth=y+building.height/2+1;
-      // The same closed-door frame and lock marker are reused for every unfinished interior.
-      this.sprite('door',x,doorY,46,66,depth);
+      // One shared tape-and-lock treatment marks every unfinished entrance.
+      const tape=this.add.graphics().setDepth(depth);tape.lineStyle(6,0xf1ddac,.9);tape.lineBetween(x-19,doorY-15,x+19,doorY+20);tape.lineBetween(x+19,doorY-15,x-19,doorY+20);
       const lock=this.add.graphics().setDepth(depth+1);lock.lineStyle(2,0xffe0a0);lock.strokeRoundedRect(x-5,doorY-3,10,12,5);lock.fillStyle(0xd8b36b);lock.fillRoundedRect(x-8,doorY+3,16,13,3);lock.fillStyle(0x695335);lock.fillCircle(x,doorY+9,2);
       const approach=buildingApproach(building);
-      this.label(approach.x,approach.y-8,'LOCKED · COMING SOON','#674f40',10).setBackgroundColor('#f4ddbc').setPadding(6,3);
+      this.label(approach.x+building.width*.3,approach.y-8,'LOCKED · COMING SOON','#674f40',10).setBackgroundColor('#f4ddbc').setPadding(6,3);
     }
   }
   private paintPark(){
@@ -247,20 +202,29 @@ export class WorldScene extends Phaser.Scene {
     g.lineStyle(1,0xf3e3c7,.85);for(const inset of [8,20,32])g.strokeRoundedRect(track.x+inset,track.y+inset,track.w-inset*2,track.h-inset*2,track.h/2-inset);
     this.label(court.x+court.w/2,court.y-32,'PICKLEBALL','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
     this.label(track.x+track.w/2,track.y-25,'RUNNING TRACK','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
-    this.add.image(park.lake.x,park.lake.y,'parkWater','lake').setDisplaySize(park.lake.w,park.lake.h).setDepth(1440);
-    this.label(park.lake.x,1390,'FISHING LAKE','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
-    const beach=this.add.image(park.beach.x,park.beach.y,'beachV2').setDisplaySize(park.beach.w,park.beach.h).setDepth(1660);
+    this.add.image(park.lake.x,park.lake.y,'parkWater.lake').setDisplaySize(park.lake.w,park.lake.h).setDepth(park.lake.y-park.lake.h/2);
+    this.label(park.lake.x,park.lake.y-park.lake.h/2-30,'FISHING LAKE','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    const beach=this.add.image(park.beach.x,park.beach.y,'beachV2').setDisplaySize(park.beach.w,park.beach.h).setDepth(park.beach.y-park.beach.h/2);
     const beachMask=this.make.graphics({x:0,y:0},false),left=park.beach.x-park.beach.w/2,top=park.beach.y-park.beach.h/2;
     const edge=[[0,.11],[.08,.13],[.18,.02],[.28,.1],[.4,.12],[.5,.02],[.62,.1],[.75,.07],[.85,.12],[1,.02],[1,1],[0,1]].map(([x,y])=>new Phaser.Math.Vector2(left+x*park.beach.w,top+y*park.beach.h));
     beachMask.fillStyle(0xffffff);beachMask.fillPoints(edge,true);beach.setMask(beachMask.createGeometryMask());beach.once('destroy',()=>beachMask.destroy());
-    this.label(park.beach.x,1630,'A LITTLE BEACH','#3e563e',15).setBackgroundColor('#fff2d7').setPadding(6,3);
-    this.label(740,1100,park.name,'#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
-    this.sprite('bench',760,1600,112,75,1640);this.sprite('bench',1900,1880,112,75,1920);
+    this.label(park.beach.x,park.beach.y-park.beach.h/2-40,'LONG BEACH','#3e563e',15).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.label(1500,3370,park.name,'#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
+    this.sprite('bench',1700,4390,112,75,4430);this.sprite('bench',5250,5380,112,75,5420);
+    this.add.image(onsen.x,onsen.y,'onsen.pool').setDisplaySize(360,250).setDepth(onsen.y-50);
+    this.label(onsen.x,onsen.y-155,'ORANGE SPRING ONSEN','#445c40',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.add.image(5950,3310,'individual.mountain').setDisplaySize(1700,850).setDepth(3450);
+    this.add.image(park.bigBear.x,park.bigBear.y,'parkWater.lake').setDisplaySize(park.bigBear.w,park.bigBear.h).setDepth(3500);
+    this.label(5950,3110,'BIG BEAR · NATURE TRAILS','#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
+    // Park perimeter, green buffers, and linked paths frame distinct activity zones.
+    g.lineStyle(3,0x738b64,.6);g.strokeRoundedRect(park.bounds.x,park.bounds.y,park.bounds.w,park.bounds.h,100);
+    for(const [x,y] of [[550,3520],[1550,3520],[1550,4620],[2800,3520],[2800,4620]]){g.fillStyle(0x809765);g.fillEllipse(x,y,140,65);}
+
   }
   private paintNpcs(){
     for(const npc of worldNpcs){
       const state=this.npcRuntime.get(npc.id),position=state.position;
-      const image=this.add.image(position.x,position.y,npc.texture,npc.frame).setOrigin(.5,1).setDisplaySize(npc.width,npc.height);
+      const image=this.add.image(position.x,position.y,`${npc.texture}.${npc.frame}`).setOrigin(.5,1).setDisplaySize(npc.width,npc.height);
       image.setInteractive({useHandCursor:true}).on('pointerdown',()=>{if(!controls.blocked&&state.map===this.mapId&&nearby(this.position,this.npcRuntime.approach(npc.id),65))this.talkNpc(npc.id);});
       const cue=this.label(0,0,'...','#4d5d49',11).setBackgroundColor('#fff6df').setPadding(4,1);
       const name=this.nameplate(0,0,npc.name);
@@ -275,9 +239,9 @@ export class WorldScene extends Phaser.Scene {
     for(const npc of worldNpcs){const state=this.npcRuntime.get(npc.id),view=this.npcViews.get(npc.id);if(!view)continue;
       setNpcLocation(npc.id,state.map,this.npcRuntime.approach(npc.id));
       const visible=state.map===this.mapId,position=state.position,immersed=!!npc.bathing&&state.home;
-      if(npc.id==='lucia')view.image.setFrame(state.home?'seated':'standing').setDisplaySize(npc.width,npc.height);
+      if(npc.id==='lucia')view.image.setTexture(`lucia.${state.home?'seated':'standing'}`).setDisplaySize(npc.width,npc.height);
       if(immersed)this.immerse(view.image,.62);else view.image.setCrop();
-      view.image.setPosition(position.x,position.y).setDepth(position.y).setVisible(visible);
+      view.image.setDisplaySize(npc.height*view.image.frame.width/view.image.frame.height,npc.height).setPosition(position.x,position.y).setDepth(position.y).setVisible(visible);
       view.name.setPosition(position.x,position.y-npc.height-13).setVisible(visible);
       const x=position.x+Math.max(24,npc.width/2,npc.name.length*3.6)+20,y=position.y-npc.height-13;
       const unread=this.unreadNpcIds.has(npc.id);
@@ -308,7 +272,7 @@ export class WorldScene extends Phaser.Scene {
         const asset=homeProps[prop.definition];
         const x=room.x+prop.x,y=room.y+prop.y;
         const depth=prop.definition==='chair'?y-30:y+asset.height/2;
-        this.add.image(x,y,asset.atlas,asset.frame).setDisplaySize(asset.width,asset.height).setDepth(depth);
+        this.add.image(x,y,`${asset.atlas}.${asset.frame}`).setDisplaySize(asset.width,asset.height).setDepth(depth);
       }
     }
     const welcome=this.add.graphics().setDepth(1);
@@ -340,7 +304,7 @@ export class WorldScene extends Phaser.Scene {
     if(!controls.blocked&&!this.seated&&!this.bathingTargetId&&!action){dx=rawX;dy=rawY;}
     if(action?.route&&!controls.blocked){const next=advanceTrack(maps[this.mapId],this.position,action.route,this.actionRouteIndex,delta);this.position=next.position;this.actionRouteIndex=next.index;this.facing=next.dy<0?'back':next.dy>0?'front':next.dx<0?'left':'right';if(next.blocked){this.actionTargetId=null;this.actionSlotId=null;this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('The running route was blocked; you stopped safely.');action=undefined;}}
     if(!this.seated&&!this.bathingTargetId&&!action&&(dx||dy))this.facing=dy<0?'back':dy>0?'front':dx<0?'left':'right';
-    const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setFrame(this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:this.seated?'sitFront':this.facing);const bathing=bathingTargets.find(target=>target.id===this.bathingTargetId);if(bathing)this.immerse(avatar,bathing.visibleFraction);
+    const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setTexture(`yoon.${this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:this.seated?'sitFront':this.facing}`);const bathing=bathingTargets.find(target=>target.id===this.bathingTargetId);if(bathing)this.immerse(avatar,bathing.visibleFraction);
     const props=this.actor.getData('activity-props') as Phaser.GameObjects.Graphics|undefined;
     if(props){props.clear();if(action?.activity==='fishing'){props.lineStyle(2,0x9b704b);props.lineBetween(12,-30,32,-75);props.lineStyle(1,0xe9eedc);props.lineBetween(32,-75,50,-40);props.fillStyle(0xc77558);props.fillCircle(50,-40,2);}else if(action?.activity==='playing'){props.lineStyle(2,0xeadfb5);props.strokeEllipse(20,-28,13,18);props.lineBetween(17,-18,14,-11);props.fillStyle(0xe6e79d);props.fillCircle(28+Math.sin(this.tick/400)*18,-38+Math.abs(Math.sin(this.tick/400))*8,3);}else if(action?.activity==='showering'){props.fillStyle(0xb8e0d9,.17);props.fillRoundedRect(-26,-67,52,67,3);props.lineStyle(1,0x97c8d0,.85);for(let i=0;i<5;i++){const y=-64+(this.tick/30+i*11)%55;props.lineBetween(-18+i*9,y,-18+i*9,y+6);}}}
     this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
