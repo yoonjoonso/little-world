@@ -1,3 +1,4 @@
+import { vendorStands } from './vendors';
 import { park } from './park';
 import { activityTargets } from './activities';
 import { villageBuildings,buildingApproach } from './buildings';
@@ -10,7 +11,9 @@ const npcLocations=new Map<string,{map:MapId;point:Point}>();
 export function setNpcLocation(id:string,map:MapId,point:Point){npcLocations.set(id,{map,point:{...point}});}
 export function updateLocation(update:Pick<WorldUpdate,'target'|'targetId'>){
   if(update.target==='npc'){const npc=worldNpcs.find(npc=>npc.id===update.targetId),location=npcLocations.get(update.targetId);return npc?{...(location?.point||npc.approach()),map:location?.map||npc.map,name:npc.name}:null;}
-  if(update.targetId==='big-bear')return {x:5950,y:4600,map:'garden' as const,name:'Big Bear'};
+  if(update.targetId==='central-commons')return {x:2500,y:2300,map:'garden' as const,name:'Commons'};
+  if(update.targetId==='big-bear')return {x:1200,y:1900,map:'garden' as const,name:'Big Bear'};
+  const stand=vendorStands.find(stand=>stand.id===update.targetId);if(stand)return {x:stand.x,y:stand.y+130,map:'garden' as const,name:stand.name};
   const activity=activityTargets.find(target=>target.id===update.targetId);if(activity)return {...activity.approach,map:activity.map,name:activity.name};
   const building=villageBuildings.find(building=>building.id===update.targetId);if(building)return {...buildingApproach(building),map:'garden' as const,name:building.name};
   const plot=planningPlots.find(plot=>plot.id===update.targetId);

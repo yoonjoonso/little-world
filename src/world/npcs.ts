@@ -1,7 +1,10 @@
 import { lucia } from './home';
 import type { MapId, Point } from './model';
-export interface WorldNpc {id:string;name:string;role:string;map:MapId;position:()=>Point;approach:()=>Point;texture:string;frame:string;asset:string;width:number;height:number;greeting:string;portraitSize:string;portraitPosition:string;bathing?:boolean}
+export interface WorldNpc {id:string;name:string;role:string;map:MapId;position:()=>Point;approach:()=>Point;texture:string;frame:string;asset:string;width:number;height:number;greeting:string;portraitSize:string;portraitPosition:string;bathing?:boolean;departure?:()=>Point}
 export const worldNpcs:WorldNpc[]=[
+  {id:'mateo',name:'Mateo',role:'taquero',map:'garden',position:()=>({x:3500,y:2160}),approach:()=>({x:3500,y:2245}),departure:()=>({x:3500,y:2020}),texture:'vendor',frame:'taquero',asset:'single/vendor-taquero.png',width:42,height:96,greeting:'The taco stand is open for a chat. What would you like?',portraitSize:'contain',portraitPosition:'center'},
+  {id:'rosa',name:'Rosa',role:'hot dog vendor',map:'garden',position:()=>({x:6500,y:4480}),approach:()=>({x:6500,y:4610}),departure:()=>({x:6500,y:4360}),texture:'vendor',frame:'hotdog',asset:'single/vendor-hotdog.png',width:42,height:96,greeting:'Welcome to my hot dog cart. What would you like?',portraitSize:'contain',portraitPosition:'center'},
+
   {id:'lucia',name:'Lucia',role:'your secretary',map:'cottage',position:()=>lucia.seat,approach:()=>lucia.approach,texture:'lucia',frame:'seated',asset:'single/lucia-standing.png',width:45,height:105,greeting:'Welcome home. What would you like to work on?',portraitSize:'contain',portraitPosition:'center'},
   {id:'mochi',bathing:true,name:'Mochi',role:'onsen regular',map:'garden',position:()=>({x:2000,y:3755}),approach:()=>({x:1965,y:3850}),texture:'capybaras',frame:'mochi',asset:'single/capybaras-mochi.png',width:53,height:78,greeting:'Mochi is enjoying the warm water, turtle backpack and all.',portraitSize:'contain',portraitPosition:'center'},
   {id:'lilito',bathing:true,name:'Lilito',role:'onsen regular',map:'garden',position:()=>({x:2100,y:3762}),approach:()=>({x:2115,y:3850}),texture:'capybaras',frame:'lilito',asset:'single/capybaras-lilito.png',width:42,height:59,greeting:'Lilito looks comfortable by the hot spring.',portraitSize:'contain',portraitPosition:'center'},

@@ -1,6 +1,6 @@
 import { homeExterior } from './layout';
 import { maps, type MapId, type Point } from './model';
-import { findRoute } from './navigation';
+import { findRoute,clearRoute } from './navigation';
 import { worldNpcs } from './npcs';
 import { npcDefinitions, planNpcRoutine, type NpcPhase } from './npcRoutines';
 
@@ -8,7 +8,7 @@ interface Place {id:string;map:MapId;slots:Point[];waiting:Point[]}
 const places:Place[]=[
   {id:'park.walk',map:'garden',slots:[{x:1550,y:3520},{x:1600,y:3520},{x:1650,y:3520}],waiting:[{x:1550,y:3580},{x:1600,y:3580}]},
   {id:'northgate.browsing',map:'garden',slots:[{x:3190,y:3080},{x:3240,y:3080}],waiting:[{x:3190,y:3140},{x:3240,y:3140}]},
-  {id:'village.commons',map:'garden',slots:[{x:1350,y:1450},{x:1400,y:1450}],waiting:[{x:1350,y:1510},{x:1400,y:1510}]},
+  {id:'village.commons',map:'garden',slots:[{x:2400,y:2320},{x:2450,y:2320}],waiting:[{x:2400,y:2380},{x:2450,y:2380}]},
 ];
 export interface NpcState {id:string;map:MapId;position:Point;phase:NpcPhase;areaId:string;home:boolean;route:Point[];reservation?:string;retryAt:number;waitingSince?:number}
 const distance=(a:Point,b:Point)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -20,7 +20,7 @@ export class NpcRuntime {
   private planningAt=0;
   get(id:string){return this.states.find(state=>state.id===id)!;}
   approach(id:string){const state=this.get(id);return state.home?worldNpcs.find(npc=>npc.id===id)!.approach():state.position;}
-  private landing(id:string){const npc=worldNpcs.find(n=>n.id===id)!;return id==='lucia'?{x:820,y:630}:npc.bathing?npc.approach():npc.position();}
+  private landing(id:string){const npc=worldNpcs.find(n=>n.id===id)!;return npc.departure?npc.departure():id==='lucia'?{x:820,y:630}:npc.bathing?npc.approach():npc.position();}
   private release(state:NpcState){if(state.reservation)this.reservations.delete(state.reservation);state.reservation=undefined;}
   private route(state:NpcState,target:Point,targetMap:MapId){
     const endpoint=state.map===targetMap?target:state.map==='cottage'?{x:600,y:808}:homeExterior.entrance;
@@ -59,6 +59,11 @@ export class NpcRuntime {
       const position=length<=speed?{...next}:{x:state.position.x+(next.x-state.position.x)*speed/length,y:state.position.y+(next.y-state.position.y)*speed/length};
       const blocked=[...obstacles,...this.states.filter(other=>other.id!==state.id&&!other.home)].some(other=>other.map===state.map&&distance(position,other.position)<30&&distance(position,other.position)<distance(state.position,other.position));
       if(blocked){state.phase='waiting';state.waitingSince??=this.elapsed;
+        const others=[...obstacles,...this.states.filter(other=>other.id!==state.id&&!other.home)].filter(other=>other.map===state.map);
+        const heading=Math.atan2(next.y-state.position.y,next.x-state.position.x);
+        const sidestep=[Math.PI/2,-Math.PI/2,Math.PI*3/4,-Math.PI*3/4].map(angle=>({x:state.position.x+Math.cos(heading+angle)*65,y:state.position.y+Math.sin(heading+angle)*65})).find(point=>clearRoute(maps[state.map],state.position,point)&&others.every(other=>{for(let i=1;i<=8;i++){const sample={x:state.position.x+(point.x-state.position.x)*i/8,y:state.position.y+(point.y-state.position.y)*i/8};if(distance(sample,other.position)<Math.min(32,distance(state.position,other.position))-.01)return false;}return true;}));
+        if(sidestep){state.route.unshift(sidestep);state.waitingSince=undefined;continue;}
+
         if(this.elapsed-state.waitingSince>5000){const destination=this.destinations.get(state.id);if(destination){const map=maps[state.map],dynamic=[...obstacles,...this.states.filter(other=>other.id!==state.id)].filter(other=>other.map===state.map&&distance(other.position,state.position)>30);const endpoint=state.route.at(-1)!;const detour=findRoute({...map,solids:[...map.solids,...dynamic.map(other=>({x:other.position.x-22,y:other.position.y-22,w:44,h:44}))]},state.position,endpoint);if(detour){state.route=detour;state.waitingSince=undefined;}}}continue;}
 
       state.phase='walking';state.waitingSince=undefined;state.position=position;if(length>speed)continue;state.route.shift();if(state.route.length)continue;

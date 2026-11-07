@@ -1,5 +1,7 @@
+import { vendorStands } from '../world/vendors';
+import { readSettings,settingsEvents } from '../services/gameSettings';
 import { standaloneAssets } from '../world/standaloneAssets';
-import { worldSize,homeExterior,roads,walks,trails } from '../world/layout';
+import { worldSize,homeExterior,roads,walks,trails,centralCommons } from '../world/layout';
 import { NpcRuntime } from '../world/npcRuntime';
 import { supabase } from '../services/supabase';
 import { activityTargets,chooseActivitySlot,advanceTrack,routeIndexForPoint } from '../world/activities';
@@ -56,7 +58,7 @@ export class WorldScene extends Phaser.Scene {
     const progress=this.add.graphics();
     const showProgress=(value:number)=>{progress.clear();progress.fillStyle(0xe9e7cf);progress.fillRoundedRect(cx-130,cy,260,10,5);progress.fillStyle(0x718e64);progress.fillRoundedRect(cx-130,cy,260*value,10,5);};
     this.load.on('progress',showProgress);this.load.once('complete',()=>{this.load.off('progress',showProgress);progress.destroy();loading.destroy();});
-    for(const [key,path] of Object.entries(standaloneAssets)){if(key.startsWith('faith.')||key.startsWith('storefronts.')||(['individual.cinema','individual.hospital','individual.fitness','cozy.grass','cozy.stone','cozy.sand','cozy.fence','cozy.gate','cozy.shrub'].includes(key)))continue;this.load.image(key,`${import.meta.env.BASE_URL}assets/${path}`);}
+    for(const [key,path] of Object.entries(standaloneAssets)){if(key.startsWith('faith.')||key.startsWith('storefronts.')||(['cart.tacoBack','cart.hotdogBack','individual.cinema','individual.hospital','individual.fitness','cozy.grass','cozy.stone','cozy.sand','cozy.fence','cozy.gate','cozy.shrub'].includes(key)))continue;this.load.image(key,`${import.meta.env.BASE_URL}assets/${path}`);}
     this.load.image('quietGrass',`${import.meta.env.BASE_URL}assets/tiles/quiet-grass-v2.png`);
     this.load.image('beachV2',`${import.meta.env.BASE_URL}assets/objects/beach-v2.png`);
     this.load.image('requestBoard',`${import.meta.env.BASE_URL}assets/objects/request-board-v1.png`);
@@ -65,6 +67,7 @@ export class WorldScene extends Phaser.Scene {
     for(const key of Object.keys(standaloneAssets).filter(key=>this.textures.exists(key)))this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
     this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT',false) as Record<string,Phaser.Input.Keyboard.Key>;
     this.paint();
+    const settingsChanged=()=>this.resizeWorld();settingsEvents.addEventListener('change',settingsChanged);this.events.once('shutdown',()=>settingsEvents.removeEventListener('change',settingsChanged));
     updateEvents.addEventListener('change',this.refreshNotice);
     window.addEventListener('storage',this.refreshNotice);
     this.events.once('shutdown',()=>{updateEvents.removeEventListener('change',this.refreshNotice);window.removeEventListener('storage',this.refreshNotice);});
@@ -84,9 +87,9 @@ export class WorldScene extends Phaser.Scene {
     const map=maps[this.mapId];
     const camera=this.cameras.main;
     // Keep world units at native size instead of magnifying the map to cover the viewport.
-    camera.setZoom(1);
+    camera.setZoom(readSettings().godMode?Math.min(.45,this.scale.width/map.width*.96,this.scale.height/map.height*.96):1);
     camera.setBounds(0,0,map.width,map.height);
-    camera.centerOn(this.position.x,this.position.y);
+    camera.centerOn(readSettings().godMode?map.width/2:this.position.x,readSettings().godMode?map.height/2:this.position.y);
   }
   private rect(g: Phaser.GameObjects.Graphics,x:number,y:number,w:number,h:number,c:number) {g.fillStyle(c,1);g.fillRect(x,y,w,h);}
   private label(x:number,y:number,text:string,color='#f9f2dc',size=13) {
@@ -165,8 +168,11 @@ export class WorldScene extends Phaser.Scene {
     this.add.image(requestBoard.x,requestBoard.y,'requestBoard').setDisplaySize(190,190).setDepth(requestBoard.y+50);
     this.label(requestBoard.x,requestBoard.y-118,'REQUEST BOARD','#34533d',16).setBackgroundColor('#fff1cc').setPadding(10,6);
     this.label(requestBoard.x,requestBoard.y+108,'Buildings · objects · neighbors','#34533d',12).setBackgroundColor('#f7edcf').setPadding(7,4);
-    this.paintDistricts();this.paintPark();
-    for(const [x,y] of [[400,650],[1180,580],[1800,680],[2300,450],[3900,450],[5600,700],[3900,1800],[1800,2650],[320,2600],[3100,3350],[2900,3700],[450,3900],[1450,4300],[2800,4500],[5100,3500],[6650,4600],[4700,4800]])this.tree(g,x,y,2.5);
+    this.paintDistricts();this.paintPark();this.paintCommons();
+    const plaza=this.add.graphics().setDepth(-2);plaza.fillStyle(0xd6d0ba);plaza.fillRoundedRect(5100,4100,1850,600,65);
+    for(const stand of vendorStands){this.add.image(stand.x,stand.y,stand.texture).setDisplaySize(stand.width,stand.height).setDepth(stand.y+stand.height/2).setInteractive({useHandCursor:true}).on('pointerdown',()=>{if(!controls.blocked&&nearby(this.position,this.npcRuntime.approach(stand.npcId),65))this.talkNpc(stand.npcId);});this.label(stand.x,stand.y+stand.height/2+30,stand.name,'#45533e',12).setBackgroundColor('#fff3d8').setPadding(5,2);}
+
+    for(const [x,y] of [[400,650],[1180,580],[1800,680],[2300,450],[3900,450],[5600,700],[3900,1800],[1800,2650],[320,2600],[3100,3350],[2900,3700],[450,3900],[1450,4300],[2800,4500],[5100,3500],[6850,4650],[4700,4800]])this.tree(g,x,y,2.5);
     this.refreshNotice();
   }
   private paintDistricts(){
@@ -202,8 +208,6 @@ export class WorldScene extends Phaser.Scene {
     g.lineStyle(1,0xf3e3c7,.85);for(const inset of [8,20,32])g.strokeRoundedRect(track.x+inset,track.y+inset,track.w-inset*2,track.h-inset*2,track.h/2-inset);
     this.label(court.x+court.w/2,court.y-32,'PICKLEBALL','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
     this.label(track.x+track.w/2,track.y-25,'RUNNING TRACK','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
-    this.add.image(park.lake.x,park.lake.y,'parkWater.lake').setDisplaySize(park.lake.w,park.lake.h).setDepth(park.lake.y-park.lake.h/2);
-    this.label(park.lake.x,park.lake.y-park.lake.h/2-30,'FISHING LAKE','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
     const beach=this.add.image(park.beach.x,park.beach.y,'beachV2').setDisplaySize(park.beach.w,park.beach.h).setDepth(park.beach.y-park.beach.h/2);
     const beachMask=this.make.graphics({x:0,y:0},false),left=park.beach.x-park.beach.w/2,top=park.beach.y-park.beach.h/2;
     const edge=[[0,.11],[.08,.13],[.18,.02],[.28,.1],[.4,.12],[.5,.02],[.62,.1],[.75,.07],[.85,.12],[1,.02],[1,1],[0,1]].map(([x,y])=>new Phaser.Math.Vector2(left+x*park.beach.w,top+y*park.beach.h));
@@ -213,13 +217,23 @@ export class WorldScene extends Phaser.Scene {
     this.sprite('bench',1700,4390,112,75,4430);this.sprite('bench',5250,5380,112,75,5420);
     this.add.image(onsen.x,onsen.y,'onsen.pool').setDisplaySize(360,250).setDepth(onsen.y-50);
     this.label(onsen.x,onsen.y-155,'ORANGE SPRING ONSEN','#445c40',14).setBackgroundColor('#fff2d7').setPadding(6,3);
-    this.add.image(5950,3310,'individual.mountain').setDisplaySize(1700,850).setDepth(3450);
-    this.add.image(park.bigBear.x,park.bigBear.y,'parkWater.lake').setDisplaySize(park.bigBear.w,park.bigBear.h).setDepth(3500);
-    this.label(5950,3110,'BIG BEAR · NATURE TRAILS','#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
+    this.add.image(1200,740,'individual.mountain').setDisplaySize(1700,850).setDepth(880);
+    this.add.image(park.bigBear.x,park.bigBear.y,'parkWater.lake').setDisplaySize(park.bigBear.w,park.bigBear.h).setDepth(930);
+    this.label(1200,200,'BIG BEAR · NATURE TRAILS','#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
     // Park perimeter, green buffers, and linked paths frame distinct activity zones.
     g.lineStyle(3,0x738b64,.6);g.strokeRoundedRect(park.bounds.x,park.bounds.y,park.bounds.w,park.bounds.h,100);
     for(const [x,y] of [[550,3520],[1550,3520],[1550,4620],[2800,3520],[2800,4620]]){g.fillStyle(0x809765);g.fillEllipse(x,y,140,65);}
 
+  }
+  private paintCommons(){
+    const c=centralCommons,g=this.add.graphics().setDepth(-2);
+    g.fillStyle(0xa7b58b);g.fillRoundedRect(c.x-c.w/2-35,c.y-c.h/2-35,c.w+70,c.h+70,80);
+    g.fillStyle(0xe0d5b9);g.fillRoundedRect(c.x-c.w/2,c.y-c.h/2,c.w,c.h,65);
+    g.fillStyle(0x96ae7f);g.fillEllipse(c.x,c.y+30,290,150);
+    const stage=this.add.graphics().setDepth(c.stage.y+55);stage.fillStyle(0x805f48);stage.fillRoundedRect(c.stage.x-c.stage.w/2,c.stage.y-c.stage.h/2,c.stage.w,c.stage.h,8);stage.lineStyle(2,0xb99066);for(let y=c.stage.y-35;y<c.stage.y+50;y+=15)stage.lineBetween(c.stage.x-100,y,c.stage.x+100,y);
+    for(const [i,bench] of c.benches.entries())this.sprite('bench',bench.x,bench.y,112,75,bench.y+40);
+    this.label(c.x,c.y-c.h/2-55,'CENTRAL COMMONS','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(8,4);
+    this.label(c.stage.x,c.stage.y-60,'BANDSTAND','#4f6047',12).setBackgroundColor('#fff3d8').setPadding(4,2);
   }
   private paintNpcs(){
     for(const npc of worldNpcs){
@@ -306,9 +320,9 @@ export class WorldScene extends Phaser.Scene {
     if(!this.seated&&!this.bathingTargetId&&!action&&(dx||dy))this.facing=dy<0?'back':dy>0?'front':dx<0?'left':'right';
     const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setTexture(`yoon.${this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:this.seated?'sitFront':this.facing}`);const bathing=bathingTargets.find(target=>target.id===this.bathingTargetId);if(bathing)this.immerse(avatar,bathing.visibleFraction);
     const props=this.actor.getData('activity-props') as Phaser.GameObjects.Graphics|undefined;
-    if(props){props.clear();if(action?.activity==='fishing'){props.lineStyle(2,0x9b704b);props.lineBetween(12,-30,32,-75);props.lineStyle(1,0xe9eedc);props.lineBetween(32,-75,50,-40);props.fillStyle(0xc77558);props.fillCircle(50,-40,2);}else if(action?.activity==='playing'){props.lineStyle(2,0xeadfb5);props.strokeEllipse(20,-28,13,18);props.lineBetween(17,-18,14,-11);props.fillStyle(0xe6e79d);props.fillCircle(28+Math.sin(this.tick/400)*18,-38+Math.abs(Math.sin(this.tick/400))*8,3);}else if(action?.activity==='showering'){props.fillStyle(0xb8e0d9,.17);props.fillRoundedRect(-26,-67,52,67,3);props.lineStyle(1,0x97c8d0,.85);for(let i=0;i<5;i++){const y=-64+(this.tick/30+i*11)%55;props.lineBetween(-18+i*9,y,-18+i*9,y+6);}}}
-    this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
-    this.cameras.main.centerOn(this.position.x,this.position.y);
+    if(props){props.clear();if(action?.activity==='playing'&&action.id==='commons.stage'){props.fillStyle(0xe1c078);props.fillCircle(11,-65,4);props.lineStyle(2,0x494b45);props.lineBetween(11,-61,11,-5);props.lineBetween(2,-5,20,-5);}else if(action?.activity==='fishing'){props.lineStyle(2,0x9b704b);props.lineBetween(12,-30,32,-75);props.lineStyle(1,0xe9eedc);props.lineBetween(32,-75,50,-40);props.fillStyle(0xc77558);props.fillCircle(50,-40,2);}else if(action?.activity==='playing'){props.lineStyle(2,0xeadfb5);props.strokeEllipse(20,-28,13,18);props.lineBetween(17,-18,14,-11);props.fillStyle(0xe6e79d);props.fillCircle(28+Math.sin(this.tick/400)*18,-38+Math.abs(Math.sin(this.tick/400))*8,3);}else if(action?.activity==='showering'){props.fillStyle(0xb8e0d9,.17);props.fillRoundedRect(-26,-67,52,67,3);props.lineStyle(1,0x97c8d0,.85);for(let i=0;i<5;i++){const y=-64+(this.tick/30+i*11)%55;props.lineBetween(-18+i*9,y,-18+i*9,y+6);}}}
+    this.position=move(maps[this.mapId],this.position,dx,dy,delta,((this.keys.SHIFT.isDown||controls.sprint)?1.8:1)*readSettings().movement);
+    this.cameras.main.centerOn(readSettings().godMode?maps[this.mapId].width/2:this.position.x,readSettings().godMode?maps[this.mapId].height/2:this.position.y);
     this.actor.setPosition(this.position.x,this.position.y).setDepth(Math.max(this.position.y,bathing?.foregroundDepth||0,action?.foregroundDepth||0));
     this.tick+=delta;this.actor.setScale(1,dx||dy?1+Math.sin(this.tick/75)*.025:1);
     const portal=portalAt(maps[this.mapId],this.position);

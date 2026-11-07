@@ -7,7 +7,7 @@ import { planningPlots, requestBoard } from './planning';
 import {canStand,maps,move,portalAt,makeDraft} from './model';
 describe('movement and map routes',()=>{
   it('blocks walls while allowing movement along their edge',()=>{
-    const start={x:538,y:620};const next=move(maps.garden,start,1,1,50);
+    const start={x:homeExterior.solid.x-12,y:homeExterior.y};const next=move(maps.garden,start,1,1,50);
     expect(next.x).toBe(start.x);expect(next.y).toBeGreaterThan(start.y);
   });
   it('keeps diagonal movement equal to straight movement',()=>{
@@ -15,7 +15,7 @@ describe('movement and map routes',()=>{
     expect(Math.hypot(a.x-start.x,a.y-start.y)).toBeCloseTo(Math.hypot(b.x-start.x,b.y-start.y));
   });
   it('caps large frame deltas so a stalled tab cannot jump across obstacles',()=>{
-    expect(move(maps.garden,maps.garden.spawn,1,0,10000).x-maps.garden.spawn.x).toBe(7.5);
+    expect(move(maps.garden,maps.garden.spawn,1,0,10000).x-maps.garden.spawn.x).toBeCloseTo(13);
   });
   it('uses accessible, explicit entrances between the compact village and larger home',()=>{
     for(const map of Object.values(maps)){
@@ -84,6 +84,12 @@ describe('idea drafts',()=>{
  const diagonal=move(maps.garden,p,1,1,50,1.8);
  expect(run.x-p.x).toBeCloseTo((walk.x-p.x)*1.8);
  expect(Math.hypot(diagonal.x-p.x,diagonal.y-p.y)).toBeCloseTo(run.x-p.x);
- const blocked=move(maps.garden,{x:538,y:620},1,0,50,1.8);
- expect(blocked.x).toBe(538);
+ const blocked=move(maps.garden,{x:homeExterior.solid.x-12,y:homeExterior.y},1,0,50,1.8);
+ expect(blocked.x).toBe(homeExterior.solid.x-12);
  });
+
+it('checks thin walls at the fastest movement setting instead of jumping through them',()=>{
+  const map={...maps.garden,solids:[{x:150,y:100,w:12,h:200}]};
+  const point=move(map,{x:130,y:200},1,0,50,3.6);
+  expect(point.x).toBeLessThanOrEqual(141);expect(canStand(map,point)).toBe(true);
+});

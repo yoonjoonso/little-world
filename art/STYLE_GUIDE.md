@@ -43,3 +43,9 @@ Every runtime object, building, character and character pose uses its own PNG. D
 ## Town layout
 
 Front doors face continuous paved sidewalks. Use connected blocks, curbs, crossings and small landscaped plazas; avoid disconnected dirt rectangles. Commercial groups: AMC/Planet Fitness/Taco Bell/Starbucks/Golden Dragon; Hospital/Little Caesars/Carl’s Jr.; Northgate/Pollo Campero/La Jara Brewery. 7-Eleven is near home, Library beside Commons Park. Park activity zones share circulation and green buffers; onsen is inside the park. Big Bear mountains/lake/trails and Long Beach coast are remote regions. Minimap labels identify the current region outdoors and building indoors.
+
+## Vendor counters and monumental scale
+
+NPCs working a counter stand behind its front layer. Keep the head/shoulders visible, lower body occluded naturally, and define separate customer approach and staff departure anchors. Vendor NPC pose points may be inside the counter footprint while active; walking resumes at a legal rear anchor. Generate customer-facing and vendor-facing variants as separate images; never embed the worker into the counter image. LA-specific details matter: taco folding table/skirt/griddle/salsas/tortillas; hot dog flat griddle/bacon-wrapped hot dogs/onions/peppers/propane, not the generic New York umbrella cart.
+
+Monumental buildings must read substantially larger: Town Arena is 1800 units wide versus AMC800, Hospital1000 and normal shops380–500. God mode in Settings fits the whole map to the viewport; normal view follows the player at native scale. Outdoor regions use short names (Mall, Home, Commons, Park, Onsen, etc.). Big Bear is northwest; Long Beach southeast. Park fishing lake removed by user: retain fishing at Big Bear only.

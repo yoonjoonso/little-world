@@ -69,5 +69,13 @@ export const standaloneAssets:Record<string,string>={
   "building.mosque": "single/building-mosque.png",
   "building.synagogue": "single/building-synagogue.png",
   "building.gurdwara": "single/building-gurdwara.png",
-  "building.seven-eleven": "single/building-seven-eleven.png"
+  "building.seven-eleven": "single/building-seven-eleven.png",
+  "building.arena": "single/building-arena.png",
+  "vendor.taquero": "single/vendor-taquero.png",
+  "vendor.hotdog": "single/vendor-hotdog.png",
+  "cart.tacoFront": "single/cart-tacoFront.png",
+  "cart.tacoBack": "single/cart-tacoBack.png",
+  "cart.hotdogFront": "single/cart-hotdogFront.png",
+  "cart.hotdogBack": "single/cart-hotdogBack.png",
+  "building.steakhouse": "single/building-steakhouse.png"
 };
