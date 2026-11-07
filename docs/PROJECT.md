@@ -160,3 +160,9 @@ The frontend now contains account sign-in/sign-out, authenticated membership dis
 Three mocked integration tests cover missing membership, position restoration/cleanup, and failed sends. All 12 tests pass. Production build passes. Browser QA was attempted but local Chromium aborts because process-singleton socket creation is denied (`Operation not permitted`); browser interaction checks remain incomplete.
 
 Activity routing: authenticated recognized updates use deterministic immediate actions; only tasks requiring interpretation/reasoning wait for a configured agent sweep. See docs/AGENT_INBOX.md. Neither the Muse connection nor a sweep schedule is live.
+
+## Request board implementation (November 7)
+
+The construction board now accepts building, NPC/neighbor, and object requests with a title, description, location, and up to three optional JPG/PNG/WebP reference photos (5 MB per file). NPC descriptions cover appearance, personality, and routine. Requests and original reference files persist in IndexedDB on the current browser and show Requested / Local; no remote builder is implied. Existing local idea drafts are retained in their previous storage but are not migrated automatically.
+
+Shared requests, authorized photo storage, plot-linked markers, and worker claim/status updates remain to be connected to Supabase. In-game plot submission and authenticated Muse submission must converge on the same eventual shared request schema. This assistant creates the art and implementation after picking up a request; Lila and Muse need not provide generated runtime assets. Optional NPC sample photos are references, not a separate visual style. Unrecognized locations and requests needing an owner decision remain pending.
