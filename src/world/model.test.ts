@@ -33,3 +33,14 @@ describe('idea drafts',()=>{
     expect(makeDraft(' Greenhouse ',' Herbs ').status).toBe('draft');
   });
 });
+
+ it("sprints faster while preserving diagonal normalization and solid collisions",()=>{
+ const p={x:480,y:458};
+ const walk=move(maps.garden,p,1,0,50);
+ const run=move(maps.garden,p,1,0,50,1.8);
+ const diagonal=move(maps.garden,p,1,1,50,1.8);
+ expect(run.x-p.x).toBeCloseTo((walk.x-p.x)*1.8);
+ expect(Math.hypot(diagonal.x-p.x,diagonal.y-p.y)).toBeCloseTo(run.x-p.x);
+ const blocked=move(maps.garden,{x:466,y:340},0,-1,50,1.8);
+ expect(blocked.y).toBe(340);
+ });

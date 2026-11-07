@@ -20,9 +20,9 @@ export function canStand(map: WorldMap, p: Point) {
   const body = {x:p.x-9,y:p.y-6,w:18,h:12};
   return body.x>=24 && body.y>=24 && body.x+body.w<=map.width-24 && body.y+body.h<=map.height-24 && !map.solids.some(s=>overlaps(body,s));
 }
-export function move(map: WorldMap,p: Point,dx: number,dy: number,delta: number): Point {
+export function move(map: WorldMap,p: Point,dx: number,dy: number,delta: number,speedMultiplier=1): Point {
   const length=Math.hypot(dx,dy); if(!length) return p;
-  const distance=150*Math.min(delta,50)/1000;
+  const distance=150*speedMultiplier*Math.min(delta,50)/1000;
   const next={...p}; const x=dx/length*distance, y=dy/length*distance;
   if(canStand(map,{x:next.x+x,y:next.y})) next.x+=x;
   if(canStand(map,{x:next.x,y:next.y+y})) next.y+=y;

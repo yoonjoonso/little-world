@@ -13,7 +13,7 @@ export class WorldScene extends Phaser.Scene {
   private highlight!: Phaser.GameObjects.Graphics;
   constructor() { super('world'); }
   create() {
-    this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE',false) as Record<string,Phaser.Input.Keyboard.Key>;
+    this.keys=this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT',false) as Record<string,Phaser.Input.Keyboard.Key>;
     this.paint();
     this.scale.on(Phaser.Scale.Events.RESIZE,this.resizeWorld,this);
     const blur=()=>{resetControls(); this.input.keyboard?.resetKeys();};
@@ -26,7 +26,7 @@ export class WorldScene extends Phaser.Scene {
     const map=maps[this.mapId];
     const camera=this.cameras.main;
     // Fill the viewport without stretching sprites; follow the player when cropped.
-    camera.setZoom(Math.max(this.scale.width/map.width,this.scale.height/map.height));
+    camera.setZoom(Math.max(1,Math.ceil(Math.max(this.scale.width/map.width,this.scale.height/map.height))));
     camera.setBounds(0,0,map.width,map.height);
     camera.centerOn(this.position.x,this.position.y);
   }
@@ -121,7 +121,7 @@ export class WorldScene extends Phaser.Scene {
     if(!this.actor) return;
     let dx=0,dy=0;
     if(!controls.blocked&&!this.seated){dx=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left);dy=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);}
-    this.position=move(maps[this.mapId],this.position,dx,dy,delta);
+    this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
     this.cameras.main.centerOn(this.position.x,this.position.y);
     this.actor.setPosition(this.position.x,this.position.y).setDepth(this.position.y);
     this.tick+=delta;this.actor.setScale(1,dx||dy?1+Math.sin(this.tick/75)*.025:1);
