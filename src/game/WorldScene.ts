@@ -1,3 +1,6 @@
+import { activityTargets,chooseActivitySlot,advanceTrack,routeIndexForPoint } from '../world/activities';
+import { villageBuildings,buildingApproach } from '../world/buildings';
+import { park } from '../world/park';
 import { worldNpcs } from '../world/npcs';
 import { bathingTargets,freeBathSlot,onsen } from '../world/bathing';
 import { updateLocation } from '../world/updateLocations';
@@ -31,10 +34,24 @@ export class WorldScene extends Phaser.Scene {
   private seated=false;
   private bathingTargetId:string|null=null;
   private bathingSlotId:string|null=null;
+  private actionTargetId:string|null=null;
+  private actionSlotId:string|null=null;
+  private actionRouteIndex=0;
   private facing:'front'|'back'|'left'|'right'='front';
   private highlight!: Phaser.GameObjects.Graphics;
   constructor() { super('world'); }
   preload() {
+    const cx=this.scale.width/2,cy=this.scale.height/2;
+    const loading=this.add.text(cx,cy-28,'Opening our little world…',{fontFamily:'monospace',fontSize:'15px',color:'#3e563e'}).setOrigin(.5);
+    const progress=this.add.graphics();
+    const showProgress=(value:number)=>{progress.clear();progress.fillStyle(0xe9e7cf);progress.fillRoundedRect(cx-130,cy,260,10,5);progress.fillStyle(0x718e64);progress.fillRoundedRect(cx-130,cy,260*value,10,5);};
+    this.load.on('progress',showProgress);this.load.once('complete',()=>{this.load.off('progress',showProgress);progress.destroy();loading.destroy();});
+    this.load.image('quietGrass',`${import.meta.env.BASE_URL}assets/tiles/quiet-grass-v2.png`);
+    this.load.image('beachV2',`${import.meta.env.BASE_URL}assets/objects/beach-v2.png`);
+    this.load.image('leaders',`${import.meta.env.BASE_URL}assets/characters/faith-leaders-v1.png`);
+    this.load.image('storefronts',`${import.meta.env.BASE_URL}assets/buildings/storefronts-v1.png`);
+    this.load.image('faith',`${import.meta.env.BASE_URL}assets/buildings/faith-v1.png`);
+    this.load.image('parkWater',`${import.meta.env.BASE_URL}assets/objects/park-water-v1.png`);
     this.load.image('yoon',`${import.meta.env.BASE_URL}assets/characters/yoon-v1.png`);
     this.load.image('capybaras',`${import.meta.env.BASE_URL}assets/characters/capybaras-v1.png`);
     this.load.image('onsen',`${import.meta.env.BASE_URL}assets/objects/onsen-v1.png`);
@@ -54,6 +71,9 @@ export class WorldScene extends Phaser.Scene {
     character.add('standing',0,140,75,390,1090);
     character.add('seated',0,750,155,335,1010);
     character.setFilter(Phaser.Textures.FilterMode.LINEAR);
+    for(const [key,frames] of Object.entries({storefronts:{store:[12,412,615,545],grocery:[627,347,616,608]},faith:{church:[61,13,503,611],mosque:[658,18,538,608],synagogue:[34,704,559,504],gurdwara:[656,654,549,560]},parkWater:{lake:[14,219,791,505],beach:[821,265,797,453]}})){for(const [name,[x,y,w,h]] of Object.entries(frames))this.textures.get(key).add(name,0,x,y,w,h);this.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);}
+    for(const [name,[x,y,w,h]] of Object.entries({cait:[200,21,246,581],samir:[798,20,251,582],eli:[196,644,262,593],harjit:[796,638,253,599]}))this.textures.get('leaders').add(name,0,x,y,w,h);
+    this.textures.get('leaders').setFilter(Phaser.Textures.FilterMode.LINEAR);
     const yoon=this.textures.get('yoon');
     for(const [name,[x,y,w,h]] of Object.entries({front:[195,10,215,495],left:[660,15,205,490],right:[1120,15,230,490],back:[195,520,215,490],sitFront:[650,575,230,430],sitBack:[1100,575,270,420]}))yoon.add(name,0,x,y,w,h);
     yoon.setFilter(Phaser.Textures.FilterMode.LINEAR);
@@ -75,7 +95,7 @@ export class WorldScene extends Phaser.Scene {
     window.addEventListener('storage',this.refreshNotice);
     this.events.once('shutdown',()=>{updateEvents.removeEventListener('change',this.refreshNotice);window.removeEventListener('storage',this.refreshNotice);});
     const remote=(event:Event)=>{this.remotePlayers=(event as CustomEvent<RemotePlayer[]>).detail;};
-    const restore=(event:Event)=>{const saved=(event as CustomEvent<RemotePlayer>).detail;if(saved.map_id!=='garden'&&saved.map_id!=='cottage')return;if(!Number.isFinite(saved.x)||!Number.isFinite(saved.y))return;this.mapId=saved.map_id;this.seated=saved.map_id==='cottage'&&saved.activity==='sitting';const bath=bathingTargets.find(target=>target.id===saved.activity_target&&target.map===saved.map_id);const slot=bath?.slots.find(slot=>slot.id===saved.activity_slot&&!slot.reservedFor);this.bathingTargetId=saved.activity==='bathing'&&slot?bath!.id:null;this.bathingSlotId=this.bathingTargetId?slot!.id:null;this.position=canStand(maps[this.mapId],saved)?{x:saved.x,y:saved.y}:{...maps[this.mapId].spawn};if(this.seated)this.position={...studyDesk.seat};if(this.bathingTargetId)this.position={...slot!.point};this.paint();};
+    const restore=(event:Event)=>{const saved=(event as CustomEvent<RemotePlayer>).detail;if(saved.map_id!=='garden'&&saved.map_id!=='cottage')return;if(!Number.isFinite(saved.x)||!Number.isFinite(saved.y))return;this.mapId=saved.map_id;this.seated=saved.map_id==='cottage'&&saved.activity==='sitting';const bath=bathingTargets.find(target=>target.id===saved.activity_target&&target.map===saved.map_id);const slot=bath?.slots.find(slot=>slot.id===saved.activity_slot&&!slot.reservedFor);this.bathingTargetId=saved.activity==='bathing'&&slot?bath!.id:null;this.bathingSlotId=this.bathingTargetId?slot!.id:null;const action=activityTargets.find(target=>target.id===saved.activity_target&&target.map===saved.map_id&&target.activity===saved.activity);const actionSlot=action?.slots.find(slot=>slot.id===saved.activity_slot);this.actionTargetId=actionSlot?action!.id:null;this.actionSlotId=actionSlot?.id||null;this.position=canStand(maps[this.mapId],saved)?{x:saved.x,y:saved.y}:{...maps[this.mapId].spawn};if(this.seated)this.position={...studyDesk.seat};if(this.bathingTargetId)this.position={...slot!.point};if(actionSlot&&action?.activity!=='running')this.position={...actionSlot.point};if(action?.route){if(canStand(maps[this.mapId],saved))this.actionRouteIndex=routeIndexForPoint(action.route,this.position);else{this.actionTargetId=null;this.actionSlotId=null;}}this.paint();};
     gameEvents.addEventListener('remote-players',remote);
     gameEvents.addEventListener('restore-player',restore);
     this.events.once('shutdown',()=>{gameEvents.removeEventListener('remote-players',remote);gameEvents.removeEventListener('restore-player',restore);});
@@ -96,7 +116,7 @@ export class WorldScene extends Phaser.Scene {
   }
   private rect(g: Phaser.GameObjects.Graphics,x:number,y:number,w:number,h:number,c:number) {g.fillStyle(c,1);g.fillRect(x,y,w,h);}
   private label(x:number,y:number,text:string,color='#f9f2dc',size=13) {
-    return this.add.text(x,y,text,{fontFamily:'monospace',fontSize:size,color,align:'center'}).setResolution(2).setOrigin(.5).setDepth(1000);
+    return this.add.text(x,y,text,{fontFamily:'monospace',fontSize:size,color,align:'center'}).setResolution(2).setOrigin(.5).setDepth(10000);
   }
   // Shared nameplate for every NPC, including future character definitions.
   private nameplate(x:number,y:number,name:string){return this.label(x,y,name,'#4f4149',12).setBackgroundColor('rgba(255,247,226,0.9)').setPadding(5,2);}
@@ -120,10 +140,12 @@ export class WorldScene extends Phaser.Scene {
   private playerAvatar(x:number,y:number,seated=false){
     const actor=this.add.container(x,y);
     const shadow=this.add.graphics();shadow.fillStyle(0x273d32,.18);shadow.fillEllipse(0,0,25,8);
-    const image=this.add.image(0,0,'yoon',this.bathingTargetId?'front':seated?'sitFront':this.facing).setOrigin(.5,1).setScale(64/495);
+    const action=activityTargets.find(target=>target.id===this.actionTargetId);
+    const image=this.add.image(0,0,'yoon',this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:seated?'sitFront':this.facing).setOrigin(.5,1).setScale(64/495);
     actor.add([shadow,image]);actor.setData('avatar',image);
     const target=bathingTargets.find(target=>target.id===this.bathingTargetId);
     if(target){shadow.setVisible(false);this.immerse(image,target.visibleFraction);actor.add(this.waterline(0,-image.displayHeight*(1-target.visibleFraction),image.displayWidth+5,target.waterColor));}
+    if(action){const props=this.add.graphics();actor.add(props);actor.setData('activity-props',props);}
     return actor;
   }
   private paint() {
@@ -136,16 +158,23 @@ export class WorldScene extends Phaser.Scene {
     if(this.mapId==='garden')this.garden(g);else this.cottage(g);
     this.paintNpcs();
     this.actor=this.playerAvatar(this.position.x,this.position.y,this.seated);
-    this.highlight=this.add.graphics().setDepth(900);
+    this.highlight=this.add.graphics().setDepth(9000);
     this.lastState='';
     this.resizeWorld();
   }
   private garden(g:Phaser.GameObjects.Graphics) {
-    this.terrain('grass',0,0,1440,1120);
+    this.add.tileSprite(0,0,2560,2080,'quietGrass').setOrigin(0).setTileScale(.35).setDepth(-5);
     this.terrain('sand',436,320,60,780);
-    this.terrain('stone',300,665,970,60);
-    this.terrain('sand',1120,230,60,465);
-    this.terrain('sand',1150,610,60,85);
+    this.terrain('stone',300,665,680,60);
+    this.terrain('stone',930,400,1540,65);
+    this.terrain('stone',930,790,1540,65);
+    this.terrain('stone',1120,1230,1350,65);
+    this.terrain('sand',930,430,50,850);
+    this.terrain('sand',1510,430,60,440);
+    this.terrain('sand',1430,855,140,55);
+    this.terrain('sand',1430,855,50,1010);
+    this.terrain('sand',1430,1810,800,55);
+    this.terrain('sand',436,1060,60,650);
     this.terrain('sand',930,695,60,330);
     [[80,140,1.2],[120,420,1.1],[80,710,1.2],[680,100,1.2],[1330,310,.9],[1330,880,1.1],[340,970,1.1]].forEach(([x,y,size])=>this.tree(g,x,y,size));
     this.sprite('wall',464,231,244,194,160);
@@ -172,7 +201,50 @@ export class WorldScene extends Phaser.Scene {
     this.label(onsen.x,1032,'Mochi & Lilito usually relax here','#445c40',11).setBackgroundColor('#fff2d7').setPadding(5,2);
     this.terrain('stone',120,980,280,44);
     this.label(780,690,'The village commons','#3e5b3c',18);
+    this.paintDistricts();
+    this.paintPark();
     this.refreshNotice();
+  }
+  private paintDistricts(){
+    this.label(1700,75,'THE STRIP MALL','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
+    this.label(1760,855,'FAITH & COMMUNITY','#3d563d',18).setBackgroundColor('#fff3d8').setPadding(10,5);
+    for(const building of villageBuildings){
+      const {x,y}=building.position;
+      const image=this.add.image(x,y,building.texture,building.frame);
+      image.setScale(Math.min(building.width/image.frame.width,building.height/image.frame.height)).setDepth(y+building.height/2);
+      const labelY=building.district==='faith'?y-building.height/2-22:y-building.height*.2;
+      const title=this.label(x,labelY,building.name,'#4b5741',building.district==='faith'?13:12);
+      if(building.district==='faith')title.setBackgroundColor('#fff3dc').setPadding(5,3);
+      const doorY=y+building.height*(building.district==='faith'?.29:.25),depth=y+building.height/2+1;
+      // The same closed-door frame and lock marker are reused for every unfinished interior.
+      this.sprite('door',x,doorY,46,66,depth);
+      const lock=this.add.graphics().setDepth(depth+1);lock.lineStyle(2,0xffe0a0);lock.strokeRoundedRect(x-5,doorY-3,10,12,5);lock.fillStyle(0xd8b36b);lock.fillRoundedRect(x-8,doorY+3,16,13,3);lock.fillStyle(0x695335);lock.fillCircle(x,doorY+9,2);
+      const approach=buildingApproach(building);
+      this.label(approach.x,approach.y-8,'LOCKED · COMING SOON','#674f40',10).setBackgroundColor('#f4ddbc').setPadding(6,3);
+    }
+  }
+  private paintPark(){
+    const g=this.add.graphics().setDepth(-2),court=park.court,track=park.track;
+    g.fillStyle(0x9bb08b);g.fillRoundedRect(court.x-12,court.y-12,court.w+24,court.h+24,12);
+    g.fillStyle(0x6e9583);g.fillRect(court.x,court.y,court.w,court.h);g.lineStyle(2,0xf5edd4,.9);g.strokeRect(court.x+18,court.y+18,court.w-36,court.h-36);
+    g.lineBetween(court.x+court.w/2,court.y+18,court.x+court.w/2,court.y+court.h-18);
+    g.lineBetween(court.x+18,court.y+court.h/2,court.x+court.w-18,court.y+court.h/2);
+    for(const x of [court.x+court.w*.35,court.x+court.w*.65])g.lineBetween(x,court.y+18,x,court.y+court.h-18);
+    g.lineStyle(5,0x586c5e);g.lineBetween(court.x+court.w/2,court.y+8,court.x+court.w/2,court.y+court.h-8);
+    g.fillStyle(0xc19679);g.fillRoundedRect(track.x,track.y,track.w,track.h,track.h/2);
+    g.fillStyle(0x91aa7f);g.fillRoundedRect(track.x+42,track.y+42,track.w-84,track.h-84,(track.h-84)/2);
+    g.lineStyle(1,0xf3e3c7,.85);for(const inset of [8,20,32])g.strokeRoundedRect(track.x+inset,track.y+inset,track.w-inset*2,track.h-inset*2,track.h/2-inset);
+    this.label(court.x+court.w/2,court.y-32,'PICKLEBALL','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.label(track.x+track.w/2,track.y-25,'RUNNING TRACK','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.add.image(park.lake.x,park.lake.y,'parkWater','lake').setDisplaySize(park.lake.w,park.lake.h).setDepth(1440);
+    this.label(park.lake.x,1390,'FISHING LAKE','#3e563e',14).setBackgroundColor('#fff2d7').setPadding(6,3);
+    const beach=this.add.image(park.beach.x,park.beach.y,'beachV2').setDisplaySize(park.beach.w,park.beach.h).setDepth(1660);
+    const beachMask=this.make.graphics({x:0,y:0},false),left=park.beach.x-park.beach.w/2,top=park.beach.y-park.beach.h/2;
+    const edge=[[0,.11],[.08,.13],[.18,.02],[.28,.1],[.4,.12],[.5,.02],[.62,.1],[.75,.07],[.85,.12],[1,.02],[1,1],[0,1]].map(([x,y])=>new Phaser.Math.Vector2(left+x*park.beach.w,top+y*park.beach.h));
+    beachMask.fillStyle(0xffffff);beachMask.fillPoints(edge,true);beach.setMask(beachMask.createGeometryMask());beach.once('destroy',()=>beachMask.destroy());
+    this.label(park.beach.x,1630,'A LITTLE BEACH','#3e563e',15).setBackgroundColor('#fff2d7').setPadding(6,3);
+    this.label(740,1100,park.name,'#3e563e',19).setBackgroundColor('#fff2d7').setPadding(8,4);
+    this.sprite('bench',760,1600,112,75,1640);this.sprite('bench',1900,1880,112,75,1920);
   }
   private paintNpcs(){
     for(const npc of worldNpcs.filter(npc=>npc.map===this.mapId)){
@@ -228,25 +300,35 @@ export class WorldScene extends Phaser.Scene {
     for(const [id,value] of this.remoteActors){if(!ids.has(id)){value.actor.destroy();this.remoteActors.delete(id);}}
     for(const player of visible){
       let value=this.remoteActors.get(player.user_id);
-      const seated=player.activity==='sitting',isBathing=player.activity==='bathing';
+      const seated=['sitting','resting','watching'].includes(player.activity),isBathing=player.activity==='bathing';
       if(value&&(value.seated!==seated||value.bathing!==isBathing)){value.actor.destroy();this.remoteActors.delete(player.user_id);value=undefined;}
       if(!value){value={actor:this.person(player.x,player.y,0x7f98c0,seated,isBathing),seated,bathing:isBathing};this.remoteActors.set(player.user_id,value);}
       const blend=1-Math.exp(-Math.min(delta,100)/100);
       value.actor.x+=(player.x-value.actor.x)*blend;value.actor.y+=(player.y-value.actor.y)*blend;value.actor.setDepth(Math.max(value.actor.y,isBathing?bathingTargets.find(target=>target.id===player.activity_target)?.foregroundDepth||0:0));
     }
     let dx=0,dy=0;
-    if(!controls.blocked&&!this.seated&&!this.bathingTargetId){dx=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left);dy=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);}
-    if(!this.seated&&!this.bathingTargetId&&(dx||dy))this.facing=dy<0?'back':dy>0?'front':dx<0?'left':'right';
-    const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setFrame(this.bathingTargetId?'front':this.seated?'sitFront':this.facing);const bathing=bathingTargets.find(target=>target.id===this.bathingTargetId);if(bathing)this.immerse(avatar,bathing.visibleFraction);
+    let action=activityTargets.find(target=>target.id===this.actionTargetId);
+    const rawX=Number(this.keys.D.isDown||this.keys.RIGHT.isDown||controls.right)-Number(this.keys.A.isDown||this.keys.LEFT.isDown||controls.left),rawY=Number(this.keys.S.isDown||this.keys.DOWN.isDown||controls.down)-Number(this.keys.W.isDown||this.keys.UP.isDown||controls.up);
+    if(action?.activity==='running'&&!controls.blocked&&(rawX||rawY)){this.actionTargetId=null;this.actionSlotId=null;action=undefined;this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('You stopped running.');}
+    if(!controls.blocked&&!this.seated&&!this.bathingTargetId&&!action){dx=rawX;dy=rawY;}
+    if(action?.route&&!controls.blocked){const next=advanceTrack(maps[this.mapId],this.position,action.route,this.actionRouteIndex,delta);this.position=next.position;this.actionRouteIndex=next.index;this.facing=next.dy<0?'back':next.dy>0?'front':next.dx<0?'left':'right';if(next.blocked){this.actionTargetId=null;this.actionSlotId=null;this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('The running route was blocked; you stopped safely.');action=undefined;}}
+    if(!this.seated&&!this.bathingTargetId&&!action&&(dx||dy))this.facing=dy<0?'back':dy>0?'front':dx<0?'left':'right';
+    const avatar=this.actor.getData('avatar') as Phaser.GameObjects.Image;avatar?.setFrame(this.bathingTargetId?'front':action&&action.activity!=='running'?action.pose:this.seated?'sitFront':this.facing);const bathing=bathingTargets.find(target=>target.id===this.bathingTargetId);if(bathing)this.immerse(avatar,bathing.visibleFraction);
+    const props=this.actor.getData('activity-props') as Phaser.GameObjects.Graphics|undefined;
+    if(props){props.clear();if(action?.activity==='fishing'){props.lineStyle(2,0x9b704b);props.lineBetween(12,-30,32,-75);props.lineStyle(1,0xe9eedc);props.lineBetween(32,-75,50,-40);props.fillStyle(0xc77558);props.fillCircle(50,-40,2);}else if(action?.activity==='playing'){props.lineStyle(2,0xeadfb5);props.strokeEllipse(20,-28,13,18);props.lineBetween(17,-18,14,-11);props.fillStyle(0xe6e79d);props.fillCircle(28+Math.sin(this.tick/400)*18,-38+Math.abs(Math.sin(this.tick/400))*8,3);}else if(action?.activity==='showering'){props.fillStyle(0xb8e0d9,.17);props.fillRoundedRect(-26,-67,52,67,3);props.lineStyle(1,0x97c8d0,.85);for(let i=0;i<5;i++){const y=-64+(this.tick/30+i*11)%55;props.lineBetween(-18+i*9,y,-18+i*9,y+6);}}}
     this.position=move(maps[this.mapId],this.position,dx,dy,delta,(this.keys.SHIFT.isDown||controls.sprint)?1.8:1);
     this.cameras.main.centerOn(this.position.x,this.position.y);
-    this.actor.setPosition(this.position.x,this.position.y).setDepth(Math.max(this.position.y,bathing?.foregroundDepth||0));
+    this.actor.setPosition(this.position.x,this.position.y).setDepth(Math.max(this.position.y,bathing?.foregroundDepth||0,action?.foregroundDepth||0));
     this.tick+=delta;this.actor.setScale(1,dx||dy?1+Math.sin(this.tick/75)*.025:1);
     const portal=portalAt(maps[this.mapId],this.position);
     const npc=worldNpcs.find(npc=>npc.map===this.mapId&&nearby(this.position,npc.approach(),65));
     const plot=this.mapId==='garden'?planningPlots.find(plot=>nearby(this.position,plot.approach,72)):undefined;
     const board=this.mapId==='garden'&&nearby(this.position,requestBoard.approach,78);
     const build=board||!!plot;
+    const actionEntry=activityTargets.find(target=>target.map===this.mapId&&nearby(this.position,target.approach,52));
+    const occupiedActionSlots=new Set(this.remotePlayers.flatMap(player=>player.activity_slot?[player.activity_slot]:[]));
+    const actionSlot=actionEntry?chooseActivitySlot(actionEntry,occupiedActionSlots):undefined;
+    const building=this.mapId==='garden'?villageBuildings.find(building=>nearby(this.position,buildingApproach(building),60)):undefined;
     const bathEntry=bathingTargets.find(target=>target.map===this.mapId&&nearby(this.position,target.approach,50));
     const occupiedBathSlots=new Set(this.remotePlayers.filter(player=>player.activity==='bathing').flatMap(player=>player.activity_slot?[player.activity_slot]:[]));
     const bathSlot=bathEntry?freeBathSlot(bathEntry,occupiedBathSlots):undefined;
@@ -257,13 +339,13 @@ export class WorldScene extends Phaser.Scene {
     if(board){this.highlight.lineStyle(3,0xffefac,.8);this.highlight.strokeRoundedRect(requestBoard.x-100,requestBoard.y-100,200,200,10);}
     if(plot){const {x,y,w,h}=plot.bounds;this.highlight.lineStyle(3,0xffefac,.85);this.highlight.strokeRoundedRect(x-4,y-4,w+8,h+8,8);}
     const pending=unreadUpdates().find(update=>{const location=updateLocation(update);return update.target==='world'&&location&&location.map===this.mapId&&nearby(this.position,location,65);});
-    const kind=pending?'updates':npc?'npc':build?'construction':null;
-    const prompt=bathing?`Leave ${bathing.name}`:this.seated?'Stand up':portal?portal.label:pending?'Inspect changes':desk?'Sit at your desk':npc?`Talk to ${npc.name}`:bathEntry?(bathSlot?`Enter ${bathEntry.name}`:`${bathEntry.name} is full`):plot?`Plan ${plot.name}`:board?'Open the request board':'';
+    const kind=pending?'updates':npc?'npc':build?'construction':building?'closed':null;
+    const prompt=action?`Leave ${action.name}`:bathing?`Leave ${bathing.name}`:this.seated?'Stand up':portal?portal.label:pending?'Inspect changes':desk?'Sit at your desk':npc?`Talk to ${npc.name}`:bathEntry?(bathSlot?`Enter ${bathEntry.name}`:`${bathEntry.name} is full`):plot?`Plan ${plot.name}`:board?'Open the request board':actionEntry?(actionSlot?actionEntry.verb:`${actionEntry.name} is full`):building?`${building.name} · Coming soon`:'';
     const pressed=Phaser.Input.Keyboard.JustDown(this.keys.E)||Phaser.Input.Keyboard.JustDown(this.keys.SPACE)||controls.interact;
     controls.interact=false;
-    if(pressed&&!controls.blocked){if(bathing){this.bathingTargetId=null;this.bathingSlotId=null;this.position={...bathing.exit};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You left the ${bathing.name}.`);}else if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y,true);logActivity('You sat at your desk.');}else if(bathEntry&&bathSlot&&!npc){this.bathingTargetId=bathEntry.id;this.bathingSlotId=bathSlot.id;this.position={...bathSlot.point};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You entered the ${bathEntry.name}.`);}else if(npc){gameEvents.dispatchEvent(new CustomEvent('talk-npc',{detail:npc.id}));}else if(kind) interact(kind);}
-    const canInteract=!!(bathing||this.seated||portal||pending||desk||npc||bathSlot||plot||board);
-    const key=`${this.bathingTargetId}:${this.seated}:${this.mapId}:${prompt}:${Math.round(this.position.x/8)}:${Math.round(this.position.y/8)}`;
-    if(key!==this.lastState){this.lastState=key;publish({map:this.mapId,prompt,interaction:kind,x:this.position.x,y:this.position.y,plotId:plot?.id,activity:this.bathingTargetId?'bathing':this.seated?'sitting':'idle',activityTarget:this.bathingTargetId||undefined,activitySlot:this.bathingSlotId||undefined,canInteract});}
+    if(pressed&&!controls.blocked){if(action){this.actionTargetId=null;this.actionSlotId=null;if(action.activity!=='running')this.position={...action.exit};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You left the ${action.name}.`);}else if(bathing){this.bathingTargetId=null;this.bathingSlotId=null;this.position={...bathing.exit};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You left the ${bathing.name}.`);}else if(this.seated){this.seated=false;this.position={...studyDesk.stand};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity('You stood up from your desk.');}else if(portal){const previous=maps[this.mapId].name;this.mapId=portal.target;this.position={...portal.spawn};this.paint();logActivity(`You moved from ${previous} to ${maps[this.mapId].name}.`);}else if(pending){gameEvents.dispatchEvent(new CustomEvent('inspect-update',{detail:pending.targetId}));}else if(desk){this.seated=true;this.position={...studyDesk.seat};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y,true);logActivity('You sat at your desk.');}else if(bathEntry&&bathSlot&&!npc){this.bathingTargetId=bathEntry.id;this.bathingSlotId=bathSlot.id;this.position={...bathSlot.point};this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You entered the ${bathEntry.name}.`);}else if(npc){gameEvents.dispatchEvent(new CustomEvent('talk-npc',{detail:npc.id}));}else if(actionEntry&&actionSlot){this.actionTargetId=actionEntry.id;this.actionSlotId=actionSlot.id;this.position={...actionSlot.point};if(actionEntry.route)this.actionRouteIndex=routeIndexForPoint(actionEntry.route,this.position);this.actor.destroy();this.actor=this.playerAvatar(this.position.x,this.position.y);logActivity(`You started ${actionEntry.activity}.`);}else if(building){gameEvents.dispatchEvent(new CustomEvent('inspect-building',{detail:building.id}));}else if(kind) interact(kind);}
+    const canInteract=!!(action||actionSlot||bathing||this.seated||portal||pending||desk||npc||bathSlot||plot||board||building);
+    const key=`${this.actionTargetId}:${this.bathingTargetId}:${this.seated}:${this.mapId}:${prompt}:${Math.round(this.position.x/8)}:${Math.round(this.position.y/8)}`;
+    if(key!==this.lastState){this.lastState=key;publish({map:this.mapId,prompt,interaction:kind,x:this.position.x,y:this.position.y,plotId:plot?.id,activity:this.actionTargetId?activityTargets.find(target=>target.id===this.actionTargetId)!.activity:this.bathingTargetId?'bathing':this.seated?'sitting':'idle',activityTarget:this.actionTargetId||this.bathingTargetId||(this.seated?studyDesk.id:undefined),activitySlot:this.actionSlotId||this.bathingSlotId||(this.seated?`${studyDesk.id}.seat`:undefined),canInteract});}
   }
 }

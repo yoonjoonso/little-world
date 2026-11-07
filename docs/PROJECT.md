@@ -212,3 +212,11 @@ Onsen and bathtub are data-driven bathing targets with approach/exit points, nam
 All NPCs use backed names plus a small chat cue, close-range highlight/action and hand cursor on the character. The cue changes to a delivered-response ! when unread. Pending foundation/compatibility schemas include bathing state and target/slot columns; no live schema changed.
 
 Validation includes enter/leave for both onsen and bathtub, movement blocked while bathing, collision-safe exit points, spaced/capacity-bound slots, immersion screenshots and existing UI/notification checks. 26 tests pass and the production build passes.
+
+## Town districts and playable activity increment
+
+The outdoor map is 2560×2080 with compact exteriors for the theater, Taco Bell, Golden Dragon, Little Caesars, Pollo Campero, Carl's Jr., Starbucks, Northgate Groceries, hospital, bar, gym, library, church, mosque, synagogue and gurdwara. All new interiors are visibly locked/Coming soon as requested. Inspecting one offers an explicitly targeted Update existing request. Faith leaders meet visitors outside while their interior worship/office/langar spaces remain closed. Each has a separate local inbox and common nameplate/chat affordance.
+
+Park sections include a marked pickleball court, running loop and fishing lake. Run follows the loop with collision checks and cancels on manual input; fishing and pickleball practice are activity poses/props, not scored minigames or simulated catches. Park/beach benches use separate seat candidates. Showering uses a distinct full-body glass/water-drop effect. The small beach sits at the far town corner and has enter/leave wading with the shared underwater-body renderer. Grass and coastline received a visual review to remove prominent repeat borders and the enclosed-pond appearance.
+
+General activity target IDs/slots are included in player snapshots. The prepared, unapplied activity constraints include the additional states. Local occupancy candidates are not proof of an atomic shared reservation; server claims remain pending on the Supabase connection. No real player presence, generated worker replies, purchase results or building interiors are fabricated.

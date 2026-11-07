@@ -17,3 +17,5 @@ Yoon selected project name **base**. Verify its exact project reference before a
 ## Pending capabilities
 
 No agent gateway, always-running sweep, photo bucket, shared request UI transport, cross-device notification transport, Realtime presence, account-name mapping or atomic seat reservation is configured by these files. The second migration is prepared infrastructure, not a running integration. Table schema must be reviewed and integration-tested against base before use.
+
+The latest prepared player-state migrations include bathing/running/fishing/playing/resting/showering and stable activity target/slot columns. A read-only CLI fallback was attempted; no access token is configured. This did not inspect or alter the live base project.

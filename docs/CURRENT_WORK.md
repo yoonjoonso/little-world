@@ -45,3 +45,9 @@ Yoon requested a work cycle every three hours. No automation_update/scheduling t
 ## Bathing increment verification
 
 26 tests/build and browser entry/leave/movement/crop checks pass. NPC immersion and human immersion share a rendering primitive. Separate guest slots avoid the static capybara places. Shared snapshots carry activity target/slot, but reservations are not server-atomic until Supabase is configured. Third compatibility migration is prepared and unapplied. Confirm PR/deployment status before claiming a later increment is live.
+
+## Town/park increment
+
+Compact exteriors and Coming soon entrance behavior are implemented for all confirmed shops, hospital/bar/gym/library and religious buildings. The four leaders have original sprites and separate local inboxes near their institution entrances. The park has running/fishing/pickleball-practice and bench activities; the far-edge beach has a real coast image and wading, and the home shower has an activity. Current source has 30 passing tests plus successful targeted browser checks; confirm latest branch/PR/deployment before reporting this increment live. New asset provenance is in art/ASSETS.md. Next unblocked priority is the actual local NPC routine/navigation runner and shared occupancy integration interfaces; the deterministic intent planner alone is not a runner.
+
+Supabase fallback checked: the CLI also has no saved access token, so it cannot inspect base. No login, migration, bucket or live backend configuration was performed. The three-hour recurring task remains NOT created.

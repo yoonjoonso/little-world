@@ -1,6 +1,6 @@
 import type { MapId } from '../world/model';
-export type Interaction = 'npc' | 'construction' | 'updates' | null;
-export interface GameState { map: MapId; prompt: string; interaction: Interaction; x: number; y: number; plotId?:string; activity?:'idle'|'sitting'|'bathing'; activityTarget?:string; activitySlot?:string;canInteract?:boolean }
+export type Interaction = 'npc' | 'construction' | 'updates' | 'closed' | null;
+export interface GameState { map: MapId; prompt: string; interaction: Interaction; x: number; y: number; plotId?:string; activity?:'idle'|'sitting'|'bathing'|'running'|'fishing'|'playing'|'resting'|'showering'; activityTarget?:string; activitySlot?:string;canInteract?:boolean }
 export const controls = { up:false,down:false,left:false,right:false,interact:false,sprint:false,blocked:false };
 export const gameEvents = new EventTarget();
 export function publish(state: GameState) { gameEvents.dispatchEvent(new CustomEvent('state',{detail:state})); }
