@@ -7,3 +7,5 @@
 
 .touch-actions{display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:auto}.sprint-toggle{touch-action:manipulation;min-height:44px;padding:8px 18px;border:1px solid #fff9df90;border-radius:24px;background:#faf2d8ed;color:#52673e}.sprint-toggle[aria-pressed=true]{background:#56744e;color:white}
 @media(pointer:coarse),(max-width:760px){.chat-overlay{bottom:calc(max(22px,env(safe-area-inset-bottom)) + 175px)}.chat-overlay.is-open{bottom:max(22px,env(safe-area-inset-bottom))}}
+
+.npc-thread{max-height:32dvh;overflow:auto;overscroll-behavior:contain}.npc-thread p{padding:12px 15px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}.npc-greeting{background:#eeefdf}.npc-outgoing{background:#e1e8d8;margin-left:30px}.npc-outgoing span{font-size:10px;color:#829172}.npc-thinking{font-size:13px!important}.npc-thinking small{display:block;font-size:11px;color:#8b967e}.npc-form button{margin-top:10px}.agent-debug pre{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:220px;overflow:auto}

@@ -116,3 +116,11 @@ Use integer camera zoom and nearest-neighbor display to avoid blurred fractional
 Messages is the default chat tab; Logs is separate and All is removed. Logs never produce unread notifications. Current messages are local only.
 
 Possible future NPC queue: authenticated player submits a job in Supabase, an authorized worker claims it, then writes dialogue and validated action proposals before marking it complete. Use pending/processing/completed/failed states, claim leases, idempotent action IDs, expiry, bounded retries, and per-world ownership checks. No live queue or worker has been configured. An existing agent worker may consume its normal plan limits if its supported integration permits this; queueing does not itself supply inference or eliminate API fees. Confirm the worker connection before implementing this architecture.
+
+## NPC inbox and native camera (November 6 update)
+
+Yoon confirms asynchronous NPC conversations: players can append messages while an NPC is thinking. The agent-facing log is separate from player activity logs and ordinary chat, with an unobtrusive debug view for the owner. Intended readers/responders are this assistant, Yoon’s Muse, and Lila’s Muse, each through explicitly connected authenticated tools. Conversations do not wake these agents automatically.
+
+The current frontend implements a browser-local persistent Milo inbox and allows further messages while awaiting connection. It explicitly labels the missing worker and offers a local JSON debug view when opened with `#agent-debug` and talking to Milo. This is neither a shared backend nor an agent API. No fake AI answers are generated. Read the proposed integration contract in `docs/AGENT_INBOX.md` before backend implementation.
+
+The camera now uses native 1x world scale rather than enlarging the map to cover the viewport; on larger displays more of the map and surrounding background are visible. World labels render at 2x texture resolution. The game uses procedural graphics and Phaser text, not generated images with baked-in text.

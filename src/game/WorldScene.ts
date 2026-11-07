@@ -25,14 +25,14 @@ export class WorldScene extends Phaser.Scene {
   private resizeWorld() {
     const map=maps[this.mapId];
     const camera=this.cameras.main;
-    // Fill the viewport without stretching sprites; follow the player when cropped.
-    camera.setZoom(Math.max(1,Math.ceil(Math.max(this.scale.width/map.width,this.scale.height/map.height))));
+    // Keep world units at native size instead of magnifying the map to cover the viewport.
+    camera.setZoom(1);
     camera.setBounds(0,0,map.width,map.height);
     camera.centerOn(this.position.x,this.position.y);
   }
   private rect(g: Phaser.GameObjects.Graphics,x:number,y:number,w:number,h:number,c:number) {g.fillStyle(c,1);g.fillRect(x,y,w,h);}
   private label(x:number,y:number,text:string,color='#f9f2dc',size=13) {
-    return this.add.text(x,y,text,{fontFamily:'monospace',fontSize:size,color,align:'center'}).setOrigin(.5).setDepth(1000);
+    return this.add.text(x,y,text,{fontFamily:'monospace',fontSize:size,color,align:'center'}).setResolution(2).setOrigin(.5).setDepth(1000);
   }
   private tree(g:Phaser.GameObjects.Graphics,x:number,y:number,size=1) {
     this.rect(g,x-7*size,y,14*size,35*size,0x705944);
