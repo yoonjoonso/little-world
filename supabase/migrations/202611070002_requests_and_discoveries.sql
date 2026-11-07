@@ -8,7 +8,9 @@ create table public.build_requests (
   title text not null check (char_length(title) between 1 and 80),
   description text not null check (char_length(description) between 1 and 2000),
   location text not null check (char_length(location) between 1 and 120),
+  operation text not null default 'create' check (operation in ('create','update')),
   target_id text,
+  check (operation<>'update' or target_id is not null),
   source text not null default 'board' check (source in ('board','muse')),
   status text not null default 'requested' check (status in ('requested','processing','needs_input','applied','failed')),
   result_note text,
@@ -28,7 +30,7 @@ create policy request_submit on public.build_requests for insert to authenticate
   with check (user_id=auth.uid() and public.is_world_member(world_id) and source='board' and status='requested');
 revoke all on public.build_requests from anon,authenticated;
 grant select on public.build_requests to authenticated;
-grant insert (id,world_id,user_id,kind,title,description,location,target_id) on public.build_requests to authenticated;
+grant insert (id,world_id,user_id,kind,title,description,location,operation,target_id) on public.build_requests to authenticated;
 grant all on public.build_requests to service_role;
 
 -- Agent identities/API authorization are configured separately. A browser cannot impersonate an NPC.

@@ -198,3 +198,9 @@ Mochi and smaller Lilito now appear at the open-air onsen, with nameplates and s
 ## House exit repair and static minimap
 
 The exit mat remains inside a fully solid interior boundary. Walking toward it stops inside; only an explicit Exit house interaction switches maps. Saved positions in the void outside the house are rejected and recover to the interior spawn. Regression checks cover walking into the exit and invalid restore positions. The minimap is display-only as requested; reading/acknowledging still requires visiting the target. Standard human art scale is 64 units and is specified in the art guide. Yoon supplied two photo references for his player avatar; that art is in preparation, not represented by the old procedural placeholder.
+
+## Player avatar and explicit update requests
+
+Yoon's supplied photo references now produce the local player avatar: glasses, short black hair, black tee and jeans, four standing facings and front-facing seated pose at a consistent 64-unit source scale. This is a directional static-pose pass with movement bob, not a finished walk-cycle set. The remote companion remains a placeholder until account-character mapping is configured.
+
+The request board now distinguishes Create from Update existing. Updates choose an explicit stable character/player, room, location or placed-object ID, accept descriptions and optional photo references, and preserve the target identity. Mismatched or unknown targets are rejected before saving. These are still local requests; shared photo uploads, generating drafts from other accounts/Muse, review approval and version rollback require the Supabase/worker pipeline. The pending unapplied request schema includes operation and target ID.

@@ -1,0 +1,43 @@
+# Current work and handoff
+
+Project: Our Little World. Repository: https://github.com/yoonjoonso/little-world. Hosted game: https://yoonjoonso.github.io/little-world/. This file and the other project documents are versioned in GitHub, not local-only deliverables.
+
+## User priorities
+
+Publish small usable increments frequently so Yoon can review the live game. Fix house usability/scale before broad expansion. Use three review passes: functionality, visuals/scale, and regressions. Read art/STYLE_GUIDE.md for consistent camera, light, aspect ratio and native scale.
+
+## Published baseline
+
+PR #8: Lucia reception, modular bedroom/bathroom/study/kitchen/reception, request board and small/medium/large planning plots; unread discoveries on minimap; initial deterministic NPC planning layer and pending Supabase request schema.
+PR #9: onsen with Mochi/Lilito, reusable NPC identities and local inboxes, house exit enclosure repair, quieter floors, separated bath/shower, display-only minimap. Exit mat must be interacted with; walking cannot enter the void. Both PRs merged and Pages publishing succeeded.
+
+## Current increment
+
+Yoon avatar based on two supplied photos, four standing facings and a seated pose, 64-unit source scale; no original private photos copied into the public repo. Explicit Create/Update existing request-board mode with stable target IDs for players, NPCs, rooms, locations and placed objects; optional photo references retained locally. Shared photo/agent processing is still unconnected. Validate this branch and publish before starting another large increment. Source draft sheets for storefronts/religious buildings are saved but are not placed yet.
+
+## Next unblocked work
+
+1. Shared bathing interaction profile for onsen and bathtub. Enter via interaction, choose a separate activity slot; hide lower body under a waterline only while bathing, leave to a legal approach. Apply the same immersion rendering to existing capybaras so they are not visibly floating above water. Plan for both human players joining later with little refactoring.
+2. Clear NPC affordances for all NPCs: shared backed nameplates, small talk bubble, close-range highlight/prompt, distinct unread !. Preserve separate inboxes and do not invent agent replies.
+3. Finish reviewing interior scale/layering and route clearance; player art is a directional static-pose pass, not finished walk cycles. Lucia is normally seated at reception, sometimes near the entrance when routines are later connected.
+4. Add exterior-only buildings in reusable data. All unfinished interiors share the same locked entrance art plus Coming soon marker. User explicitly deferred most new interiors; do not build a large set of generic enterable interiors yet. Existing home remains enterable.
+5. Small beach farther out at the edge of town (user clarified beach, not peach).
+6. Connect authoritative NPC state runner, collision-safe routes/portals, daily routines and atomic shared player/NPC activity reservations. Pure daily plan/slot-candidate helpers exist; actual autonomous/shared runner does not. No NPC stacking: reserve before travel, use separate waiting spots, switch activity/leave after bounded wait if full.
+
+## Confirmed world content
+
+Retain gym, library and park with pickleball, running track and fishing lake sections. Add Northgate Groceries (Mexican/Northgate-inspired). Strip mall: one-auditorium theater with reception/concessions, Taco Bell, Golden Dragon (generic Chinese), Little Caesars, Pollo Campero, Carl's Jr. and Starbucks. Consider optional food variety only after these confirmed entries.
+
+Open-air onsen: Mochi has green turtle backpack and sometimes orange on head; Lilito is smaller and has a small black kippah. They mostly relax there, later occasional walks elsewhere. No capybara house.
+
+Religious district: Methodist church with female Pastor Cait; mosque with Imam Samir; synagogue with Rabbi Eli; Sikh gurdwara with Granthi Harjit. Gurdwara has separate worship and langar areas when interior is built. Leaders normally at their institutions, with short occasional outings. Their definitions/plans exist, but their buildings/interiors and live NPC instances are not yet placed.
+
+## Supabase is blocked, not live
+
+Target project name supplied by Yoon: base. Exact project reference unverified. Supabase plugin reports installed, but this chat has no Supabase project tools. No live schema inspected or migration applied. No URL/public key configured, no shared image buckets, no working live login/multiplayer/Muse worker. Files under supabase/migrations are prepared and unapplied. Do not blindly apply against unknown existing tables. AGENTS.md requires approval before live migration changes.
+
+Needed: real project access and schema review, Auth/account mapping for Yoon/Lila, shared positions/messages/presence, private reference uploads and generated-model assets with registry/versioning, shared board updates and delegated Muse submissions, leased task processing/decision flags, actual NPC replies, per-user cross-device notification reads, common occupancy/seat locks. See docs/SUPABASE_SETUP.md and docs/AGENT_INBOX.md. Installed plugin tools may require a fresh chat explicitly selecting @Supabase. The existing Git credential cannot push workflow file edits, so build-time Supabase configuration was deferred rather than weakening access.
+
+## Scheduled continuation requested but NOT created
+
+Yoon requested a work cycle every three hours. No automation_update/scheduling tool is exposed in this chat, so no recurring automation exists from this session. Do not claim otherwise. Ready work-cycle prompt is in docs/WORK_CYCLE.md. Local scheduled tasks require the machine/app awake; user is considering Codex Cloud so coding can run independently. App project/cloud setup also was not performed by this chat (no project-management tools).
